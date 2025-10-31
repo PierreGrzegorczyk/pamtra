@@ -16,20 +16,20 @@ subroutine parse_options(gitVersion,gitHash)
     opts(1) = option_s( "namelist", .true.,  'n' )
     opts(2) = option_s( "profile", .true.,  'p' )
     opts(3) = option_s( "descriptor", .true.,  'd' )    
-!     opts(4) = option_s( "grid", .true.,  'g' )
+!    opts(4) = option_s( "grid", .true.,  'g' )
     opts(4) = option_s( "output", .true., 'o' )
     opts(5) = option_s( "freqs", .true., 'f' )
     opts(6) = option_s( "verbose", .true., 'v' )
     opts(7) = option_s( "help", .false., 'h' )
 
-    namelist_file = 'None'
-    input_pathfile = 'profile/example_input.lay'
+    namelist_file = '../examples/pamtra_vs_pyPamtra.nml'
+    input_pathfile = '../profile/example_input.lev'
     output_path = "."
 !     coords = (/1,1,1,1/)
     frqs_str = ''
-    frqs_str(1) = '89.0'
+    frqs_str(1) = '35.0'
     nfrq = 1
-    descriptor_file_name = "descriptorfiles/descriptor_file.txt"
+    descriptor_file_name = "../descriptorfiles/descriptor_file_COSMO_1mom.txt"
     
     do
         select case( getopt( "n:cp:cd:co:cf:cv:ch", opts ))

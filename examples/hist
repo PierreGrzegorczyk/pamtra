@@ -1,0 +1,1000 @@
+  975  make driver 
+  976  cd ../driver/run/
+  977  ./cosp2_test cosp2_input_nl.txt &
+  978  cd ..
+  979  grep -r "quickbeam" --include="*.f90" .
+  980  grep -r "quickbeam" --include="*.F90" .
+  981  :q!
+  982  vi ../src/cosp2_test.f90 
+  983  vi subsample_and_optics_example/optics/quickbeam_optics/quickbeam_optics.F90
+  984  cd subsample_and_optics_example/optics/
+  985  ls
+  986  cd quickbeam_optics/
+  987  ls
+  988  vim quickbeam_optics.F90 
+  989  vim optics_lib.F90 
+  990  cd ..
+  991  ls
+  992  cd driver/
+  993  ls
+  994  cd run/
+  995  ls
+  996  cd ..
+  997  cd src/
+  998  l
+  999  vi cosp2_test.f90 
+ 1000  cd ..
+ 1001  grep -r "random_number" --include="*.f90" .
+ 1002  vi cosp2_test.f90 
+ 1003  cd driver/run/
+ 1004  ls
+ 1005  vim cosp2_test 
+ 1006  cd ../src/
+ 1007  ls
+ 1008  vim cosp2_test.f90
+ 1009  cd ../../build/
+ 1010  make driver 
+ 1011  vim cosp2_test.f90
+ 1012  vim ../driver/src/cosp2_test.f90 
+ 1013  make driver 
+ 1014  vim ../driver/src/cosp2_test.f90 
+ 1015  make driver 
+ 1016  cd ../driver/src/
+ 1017  ls
+ 1018  cd ../run/
+ 1019  history 100
+ 1020  ./cosp2_test cosp2_input_nl.txt &
+ 1021  cd ../../build/
+ 1022  vim ../driver/src/cosp2_test.f90 
+ 1023  cd ../driver/run/
+ 1024  make dr
+ 1025  cd ../../build/
+ 1026  make driver 
+ 1027  cd ../driver/run/
+ 1028  ./cosp2_test cosp2_input_nl.txt &
+ 1029  cd ../src/
+ 1030  vi cosp2_test.f90 
+ 1031  cd ../../build/
+ 1032  ls
+ 1033  make driver 
+ 1034  cd ../driver/run/
+ 1035  ls
+ 1036  ./cosp2_test cosp2_input_nl.txt &
+ 1037  vim ../driver/src/cosp2_test.f90 
+ 1038  vi cosp2_test.f90 
+ 1039  vim ../../driver/src/cosp2_test.f90 
+ 1040  cd ../../build/
+ 1041  make driver 
+ 1042  cd ../driver/run/
+ 1043  ./cosp2_test cosp2_input_nl.txt &
+ 1044  vim ../src/cosp2_test.f90 
+ 1045  cd ../../build/
+ 1046  make driver 
+ 1047  cd ../driver/run/
+ 1048  ./cosp2_test cosp2_input_nl.txt &
+ 1049  vim ../src/cosp2_test.f90 
+ 1050  cd ../../build/
+ 1051  make driver 
+ 1052  cd ../driver/run/
+ 1053  ./cosp2_test cosp2_input_nl.txt &
+ 1054  vim ../src/cosp2_test.f90 
+ 1055  cd ../../build/
+ 1056  make driver 
+ 1057  cd ../driver/run/
+ 1058  ./cosp2_test cosp2_input_nl.txt &
+ 1059  vim ../src/cosp2_test.f90 
+ 1060  cd ../../build/
+ 1061  make driver 
+ 1062  cd ../driver/src/
+ 1063  ./cosp2_test cosp2_input_nl.txt &
+ 1064  cd ../run/
+ 1065  ./cosp2_test cosp2_input_nl.txt &
+ 1066  cd ..
+ 1067  cd ..
+ 1068  ls
+ 1069  grep -r "\,9" --include="*.F90"
+ 1070  grep -r -i "nhydr" --include="*.F90"
+ 1071  grep -r -i "nhydr" --include="*.d90"
+ 1072  grep -r -i "nhydr" --include="*.f90"
+ 1073  grep -r -i "Reff" --include="*.f90"
+ 1074  grep -r -i "I_" --include="*.f90"
+ 1075  :wq!
+ 1076  cd ..
+ 1077  ls
+ 1078  cd COSP/
+ 1079  ls
+ 1080  cd COSPv2.0_lmdz_hillman
+ 1081  ls
+ 1082  cd driver/run/
+ 1083  ./cosp2_test cosp2_input_nl.txt &
+ 1084  cd ../src/
+ 1085  ls
+ 1086  vi cosp2_test.f90 
+ 1087  conda activate cosp-env
+ 1088  cd /mnt/c/Users/grzegorczyk/AWACA/COSP/COSPv2.0/build
+ 1089  cd ..
+ 1090  ls
+ 1091  cd driver/
+ 1092  ls
+ 1093  cd src/
+ 1094  ks
+ 1095  ls
+ 1096  vi cosp2_test.f90
+ 1097  cd ../../../COSPv2.0_lmdz_hillman/
+ 1098  ls
+ 1099  cd driver/src/
+ 1100  ls
+ 1101  vi cosp2_test.f90 
+ 1102  vi ../../subsample_and_optics_example/Hillman/adjust_precip.F90 
+ 1103  vi cosp2_test.f90 
+ 1104  cd ../../build/
+ 1105  make driver 
+ 1106  cd ../driver/run/
+ 1107  ls
+ 1108  ./cosp2_test cosp2_input_nl.txt
+ 1109  cd ../../build/
+ 1110  vi ../../subsample_and_optics_example/Hillman/adjust_precip.F90 
+ 1111  vi ../subsample_and_optics_example/Hillman/adjust_precip.F90
+ 1112  vi ../driver/src/cosp2_test.f90 
+ 1113  cd ../driver/run/
+ 1114  cd ../../build/
+ 1115  make driver 
+ 1116  cd ../driver/run/
+ 1117  ./cosp2_test cosp2_input_nl.txt
+ 1118  ls
+ 1119  vi ../../subsample_and_optics_example/Hillman/gen_subcol.F90
+ 1120  ls
+ 1121  vi ../../driver/src/cosp2_test.f90 
+ 1122  vi cosp2_input_nl.txt
+ 1123  vi ../../driver/src/cosp2_test.f90 
+ 1124  vi cosp2_input_nl.txt
+ 1125  vi ../../subsample_and_optics_example/Hillman/gen_subcol.F90
+ 1126  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1127  vi ../../subsample_and_optics_example/Hillman/gen_subcol.F90
+ 1128  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1129  vi ../../driver/src/cosp2_test.f90 
+ 1130  vi ../../subsample_and_optics_example/Hillman/adjust_precip.F90 
+ 1131  vi ../../driver/src/cosp2_test.f90 
+ 1132  vi ../../subsample_and_optics_example/Hillman/gen_subcol.F90
+ 1133  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1134  cd ..
+ 1135  grep -r "random_gamma" --include="*.f90" .
+ 1136  vi subsample_and_optics_example/Hillman/random.f90
+ 1137  vi /subsample_and_optics_example/Hillman/random.f90
+ 1138  vi subsample_and_optics_example/Hillman/random.f90
+ 1139  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1140  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1141  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1142  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1143  ls
+ 1144  vi driver/src/cosp2_test.f90 
+ 1145  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1146  vi driver/src/cosp2_test.f90 
+ 1147  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1148  vi driver/src/cosp2_test.f90 
+ 1149  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1150  vi subsample_and_optics_example/Hillman/adjust_precip.F90 
+ 1151  vi driver/src/cosp2_test.f90 
+ 1152  cd build/
+ 1153  make driver 
+ 1154  vi driver/src/cosp2_test.f90 
+ 1155  vi ../driver/src/cosp2_test.f90 
+ 1156  make driver 
+ 1157  vi ../driver/src/cosp2_test.f90 
+ 1158  make driver 
+ 1159  vi ../driver/src/cosp2_test.f90 
+ 1160  make driver 
+ 1161  vi ../driver/src/cosp2_test.f90 
+ 1162  vimdiff ../driver/src/cosp2_test.f90 ../../COSPv2.0_lmdz/driver/src/cosp2_test.f90
+ 1163  vi ../driver/src/cosp2_test.f90 
+ 1164  make driver 
+ 1165  cd ../driver/src/
+ 1166  ls
+ 1167  cd ../run/
+ 1168  ls
+ 1169  ./cosp2_test cosp2_input_nl.txt
+ 1170  vi ../driver/src/cosp2_test.f90 
+ 1171  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1172  cd ../../build/
+ 1173  make driver 
+ 1174  cd ../driver/run/
+ 1175  ./cosp2_test cosp2_input_nl.txt
+ 1176  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1177  cd ../../build/
+ 1178  make driver 
+ 1179  cd ../driver/run/
+ 1180  ./cosp2_test cosp2_input_nl.txt
+ 1181  vi ../src/
+ 1182  cd ../src/
+ 1183  ls
+ 1184  vi cosp2_test.f90
+ 1185  ./cosp2_test cosp2_input_nl.txt
+ 1186  cd ../run/
+ 1187  ./cosp2_test cosp2_input_nl.txt
+ 1188  vi cosp2_test.f90
+ 1189  cd ..
+ 1190  ls
+ 1191  cd src/
+ 1192  ls
+ 1193  vi cosp2_test.f90 
+ 1194  cd ../../driver/
+ 1195  make dr
+ 1196  cd ../build/
+ 1197  make driver 
+ 1198  vi ../driver/src/cosp2_test.f90 
+ 1199  make driver 
+ 1200  cd ../driver/run/
+ 1201  ./cosp2_test cosp2_input_nl.txt
+ 1202  vi ../../subsample_and_optics_example/Hillman/
+ 1203  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1204  vi ../src/
+ 1205  cd ../src/
+ 1206  ls
+ 1207  vi cosp2_test.f90 
+ 1208  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1209  vi cosp2_test.f90 
+ 1210  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1211  vi cosp2_test.f90 
+ 1212  cd ..
+ 1213  git status
+ 1214  git checkout -b cosp_lmdz_hillman
+ 1215  git add .
+ 1216  git commit -m "Cosp for lmdz with precip adjust from Hillman"
+ 1217  git push -u origin cosp_lmdz_hillman
+ 1218  git push -u cosp_lmdz cosp_lmdz_hillman
+ 1219  ls
+ 1220  vi driver/src/cosp2_test.f90 
+ 1221  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1222  cd driver/
+ 1223  make dr
+ 1224  cd ../build/
+ 1225  make driver 
+ 1226  ls
+ 1227  cd ..
+ 1228  cd driver/run/
+ 1229  ls
+ 1230  ./cosp2_test cosp2_input_nl.txt
+ 1231  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1232  cd ../../build/
+ 1233  make driver 
+ 1234  cd ../driver/run/
+ 1235  ls
+ 1236  ./cosp2_test cosp2_input_nl.txt
+ 1237  cd ..
+ 1238  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1239  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1240  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1241  cd ../build/
+ 1242  make driver 
+ 1243  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1244  make driver 
+ 1245  cd ../driver/run/
+ 1246  ./cosp2_test cosp2_input_nl.txt
+ 1247  vi ../src/cosp2_test.f90 
+ 1248  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1249  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1250  cd ../../build/
+ 1251  make driver 
+ 1252  cd ../driver/run/
+ 1253  ./cosp2_test cosp2_input_nl.txt
+ 1254  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1255  cd ../../build/
+ 1256  make driver 
+ 1257  cd ../driver/run/
+ 1258  ./cosp2_test cosp2_input_nl.txt
+ 1259  ./cosp2_test cosp2_input_nl.txt > test
+ 1260  vi test 
+ 1261  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1262  cd ../../build/
+ 1263  make driver 
+ 1264  cd ../driver/run/
+ 1265  ./cosp2_test cosp2_input_nl.txt > test
+ 1266  vi test 
+ 1267  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90 
+ 1268  conda activate cosp-env
+ 1269  cd /mnt/c/Users/grzegorczyk/AWACA/COSP/COSPv2.0/build
+ 1270  make driver 
+ 1271  cd ..
+ 1272  cd ../COSPv2.0_lmdz_hillman/
+ 1273  cd build/
+ 1274  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1275  vi ../../Hillman/gen_subcol_var.F90 
+ 1276  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1277  make driver 
+ 1278  cd ../driver/run/
+ 1279  ls
+ 1280  ./cosp2_test cosp2_input_nl.txt
+ 1281  ./cosp2_test cosp2_input_nl.txt > test
+ 1282  vi test 
+ 1283  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1284  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1285  cd ../b
+ 1286  cd ../../build/
+ 1287  make driver 
+ 1288  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1289  make driver 
+ 1290  cd ../driver/run/
+ 1291  ./cosp2_test cosp2_input_nl.txt > test
+ 1292  ./cosp2_test cosp2_input_nl.txt
+ 1293  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1294  cd ..
+ 1295  cd build/
+ 1296  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1297  make driver 
+ 1298  cd ../driver/run/
+ 1299  ./cosp2_test cosp2_input_nl.txt
+ 1300  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1301  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1302  cd ../../build/
+ 1303  make driver 
+ 1304  cd ../driver/run/
+ 1305  ./cosp2_test cosp2_input_nl.txt
+ 1306  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1307  cd ../../build/
+ 1308  make driver 
+ 1309  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1310  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1311  make driver 
+ 1312  cd ../driver/run/
+ 1313  ./cosp2_test cosp2_input_nl.txt
+ 1314  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1315  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1316  cd ../../build/
+ 1317  make driver 
+ 1318  cd ../driver/run/
+ 1319  ./cosp2_test cosp2_input_nl.txt
+ 1320  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1321  vi ../src/cosp2_test.f90 
+ 1322  cd ../../build/
+ 1323  make driver 
+ 1324  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1325  make driver 
+ 1326  cd ../driver/run/
+ 1327  make driver 
+ 1328  ./cosp2_test cosp2_input_nl.txt
+ 1329  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1330  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1331  vi ../src/cosp2_test.f90 
+ 1332  cd ../../build/
+ 1333  make driver 
+ 1334  cd ../driver/run/
+ 1335  ls
+ 1336  ./cosp2_test cosp2_input_nl.txt
+ 1337  vi ../../subsample_and_optics_example/Hillman/gen_subcol.F90 
+ 1338  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1339  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1340  cd ../../build/
+ 1341  make driver 
+ 1342  cd ..
+ 1343  ls
+ 1344  cd driver/run/
+ 1345  ./cosp2_test cosp2_input_nl.txt
+ 1346  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1347  cd ../../build/
+ 1348  make driver 
+ 1349  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1350  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1351  cd ../driver/run/
+ 1352  ./cosp2_test cosp2_input_nl.txt
+ 1353  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1354  cd ../src/
+ 1355  vi cosp2_test.f90 
+ 1356  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1357  vi cosp2_test.f90 
+ 1358  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1359  cd ../../build/
+ 1360  make driver 
+ 1361  cd ../driver/run/
+ 1362  ./cosp2_test cosp2_input_nl.txt
+ 1363  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1364  cd ../b
+ 1365  cd ../../build/
+ 1366  make driver 
+ 1367  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1368  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1369  make driver 
+ 1370  cd ../driver/run/
+ 1371  ./cosp2_test cosp2_input_nl.txt
+ 1372  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1373  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1374  cd ../../build/
+ 1375  make driver 
+ 1376  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1377  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1378  make driver 
+ 1379  cd ../driver/run/
+ 1380  cd ../../b
+ 1381  cd ../../build/
+ 1382  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1383  make driver 
+ 1384  cd ../driver/run/
+ 1385  ./cosp2_test cosp2_input_nl.txt
+ 1386  vi ../src/cosp2_test.f90 
+ 1387  cd ..
+ 1388  cd ../build/
+ 1389  make driver 
+ 1390  ./cosp2_test cosp2_input_nl.txt
+ 1391  cd ../driver/run/
+ 1392  ./cosp2_test cosp2_input_nl.txt
+ 1393  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1394  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1395  vi ../src/cosp2_test.f90 
+ 1396  make driver 
+ 1397  cd ../driver/run/
+ 1398  vi ../subsample_and_optics_example/Hillman/gen_subcol.F90
+ 1399  vi ../../subsample_and_optics_example/Hillman/gen_subcol.F90
+ 1400  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1401  vi ../src/cosp2_test.f90 
+ 1402  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1403  cd ../../build/
+ 1404  make driver 
+ 1405  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1406  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1407  make driver 
+ 1408  cd ../driver/src/
+ 1409  ./cosp2_test cosp2_input_nl.txt
+ 1410  cd ../run/
+ 1411  ./cosp2_test cosp2_input_nl.txt
+ 1412  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1413  cd ../../build/
+ 1414  make 
+ 1415  make driver 
+ 1416  ./cosp2_test cosp2_input_nl.txt
+ 1417  cd ../driver/run/
+ 1418  ./cosp2_test cosp2_input_nl.txt
+ 1419  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1420  cd ../../build/
+ 1421  make driver 
+ 1422  cd ../driver/run/
+ 1423  ./cosp2_test cosp2_input_nl.txt
+ 1424  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1425  cd ../../driver/
+ 1426  cd ../build/
+ 1427  make driver 
+ 1428  ./cosp2_test cosp2_input_nl.txt
+ 1429  vf ../driver/run/
+ 1430  ./cosp2_test cosp2_input_nl.txt
+ 1431  cd ../driver/run/
+ 1432  ./cosp2_test cosp2_input_nl.txt
+ 1433  cd ../../build/
+ 1434  make driver 
+ 1435  cd ../driver/run/
+ 1436  cd ../build/
+ 1437  ./cosp2_test cosp2_input_nl.txt &
+ 1438  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1439  cd ../../driver/
+ 1440  cd ../build/
+ 1441  make driver 
+ 1442  cd ../driver/run/
+ 1443  ./cosp2_test cosp2_input_nl.txt &
+ 1444  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1445  ./cosp2_test cosp2_input_nl.txt &
+ 1446  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1447  cd ../../build/
+ 1448  make driver 
+ 1449  cd ../driver/run/
+ 1450  ./cosp2_test cosp2_input_nl.txt &
+ 1451  ps
+ 1452  ./cosp2_test cosp2_input_nl.txt &
+ 1453  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1454  cd ../../build/
+ 1455  make driver 
+ 1456  cd ../driver/run/
+ 1457  ./cosp2_test cosp2_input_nl.txt &
+ 1458  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1459  vi ../../../Hillman/gen_subcol_var.F90
+ 1460  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1461  vi ../../../Hillman/gen_subcol_var.F90
+ 1462  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1463  grep -r "random_gamma" --include="*.f90" .
+ 1464  cd ..
+ 1465  grep -r "random_gamma" --include="*.f90" .
+ 1466  vi subsample_and_optics_example/Hillman/random.f90
+ 1467  grep -r "random_gamma1" --include="*.f90" .
+ 1468  vi subsample_and_optics_example/Hillman/random.f90
+ 1469  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1470  vi subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1471  cd build/
+ 1472  make driver 
+ 1473  ./cosp2_test cosp2_input_nl.txt &
+ 1474  cd ../driver/run/
+ 1475  ./cosp2_test cosp2_input_nl.txt &
+ 1476  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1477  cd ../../build/
+ 1478  make driver 
+ 1479  cd ../driver/run/
+ 1480  ./cosp2_test cosp2_input_nl.txt &
+ 1481  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1482  cd ../../build/
+ 1483  make driver 
+ 1484  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1485  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1486  make driver 
+ 1487  cd ../driver/run/
+ 1488  ./cosp2_test cosp2_input_nl.txt &
+ 1489  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1490  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1491  cd ../../build/
+ 1492  make driver 
+ 1493  ./cosp2_test cosp2_input_nl.txt &
+ 1494  ps
+ 1495  ./cosp2_test cosp2_input_nl.txt 
+ 1496  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1497  cd ../../build/
+ 1498  make driver 
+ 1499  cd ../driver/run/
+ 1500  cd ..
+ 1501  cd ;.
+ 1502  cd /mnt/c/Users/grzegorczyk/AWACA/COSP/COSPv2.0_lmdz_hillman/driver
+ 1503  cdr
+ 1504  cd run/
+ 1505  ./cosp2_test cosp2_input_nl.txt 
+ 1506  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1507  cd ../../build/
+ 1508  make driver 
+ 1509  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1510  vi .../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1511  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1512  make driver 
+ 1513  cd ../driver/run/
+ 1514  ./cosp2_test cosp2_input_nl.txt 
+ 1515  vi ../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1516  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1517  cd ../../build/
+ 1518  make driver 
+ 1519  cd ../driver/run/
+ 1520  ./cosp2_test cosp2_input_nl.txt 
+ 1521  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1522  vi ../src/cosp2_test.f90 
+ 1523  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1524  vi ../src/cosp2_test.f90 
+ 1525  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1526  cd ../../build/
+ 1527  make driver 
+ 1528  cd ../driver/run/
+ 1529  ./cosp2_test cosp2_input_nl.txt 
+ 1530  :q!
+ 1531  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1532  cd ../../build/
+ 1533  make driver 
+ 1534  cd ../driver/run/
+ 1535  ./cosp2_test cosp2_input_nl.txt 
+ 1536  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1537  cd ../../build/
+ 1538  make driver 
+ 1539  cd ../driver/run/
+ 1540  ./cosp2_test cosp2_input_nl.txt 
+ 1541  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1542  ./cosp2_test cosp2_input_nl.txt 
+ 1543  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1544  cd ../../build/
+ 1545  make driver 
+ 1546  ./cosp2_test cosp2_input_nl.txt 
+ 1547  cd ../driver/run/
+ 1548  ./cosp2_test cosp2_input_nl.txt 
+ 1549  vi ../../subsample_and_optics_example/Hillman/gen_subcol_var.F90
+ 1550  cd ..
+ 1551  history 1000
+ 1552  git status
+ 1553  git init
+ 1554  git checkout -b cosp_lmdz_hillman_var
+ 1555  git add .
+ 1556  git commit -m "Cosp with Hillman precip treatment and in qi horizontal variability for cirrus cloud"
+ 1557  git push -u origin cosp_lmdz
+ 1558  git checkout -b cosp_lmdz_hillman_var
+ 1559  git push -u origin cosp_lmdz_var
+ 1560  git add .
+ 1561  git commit -m "Cosp with Hillman precip treatment and in qi horizontal variability for cirrus cloud"
+ 1562  git push -u origin cosp_lmdz_hillman_var
+ 1563  git push -u cosp_lmdz cosp_lmdz_hillman_var
+ 1564  cd .. 
+ 1565  cd ..
+ 1566  cd PAMTRA
+ 1567  mkdir PAMTRA
+ 1568  cd PAMTRA
+ 1569  conda activate cosp-env
+ 1570  cd /mnt/c/Users/grzegorczyk/AWACA/
+ 1571  cd PAMTRA/pamtra/
+ 1572  make
+ 1573  ls
+ 1574  vi Makefile 
+ 1575  cd output/
+ 1576  ls
+ 1577  cd ..
+ 1578  ls
+ 1579  vi meson.build 
+ 1580  make clean
+ 1581  make 
+ 1582  vi Makefile 
+ 1583  grep 'FCFLAGS' Makefile 
+ 1584  vi Makefile 
+ 1585  make
+ 1586  make clean 
+ 1587  make 
+ 1588  make CFLAGS="-O -fPIC -std=c99"
+ 1589  vi Makefile 
+ 1590  make clean
+ 1591  vi Makefile 
+ 1592  make clean
+ 1593  vi Makefile 
+ 1594  make clean 
+ 1595  make 
+ 1596  conda install -c conda-forge lapack blas fftw
+ 1597  make
+ 1598  make clean 
+ 1599  make 
+ 1600  ls
+ 1601  cd bin
+ 1602  ls
+ 1603  ./pamtra
+ 1604  cd ..
+ 1605  ls
+ 1606  cd tools/
+ 1607  ls
+ 1608  vi readme.md 
+ 1609  history 100
+ 1610  cd ..
+ 1611  ls
+ 1612  cd src/
+ 1613  ks
+ 1614  ls
+ 1615  cd ..
+ 1616  :q!
+ 1617  vi test_config.in
+ 1618  ./bin/pamtra < test_config.in
+ 1619  ls
+ 1620  cd examples/
+ 1621  ls
+ 1622  vi readme.md 
+ 1623  vi radar_example.py 
+ 1624  vim pamtra_vs_pyPamtra.nml
+ 1625  cd ..
+ 1626  git pull
+ 1627  cd tools/
+ 1628  ls
+ 1629  cd ..
+ 1630  export PAMTRA_DATADIR=$(pwd)/data
+ 1631  ./bin/pamtra < test_config.in
+ 1632  cd pamtra/
+ 1633  export PAMTRA_DATADIR=$(pwd)/data
+ 1634  ./bin/pamtra < test_config.in
+ 1635  vi src/descriptor_file.f90
+ 1636  cd data
+ 1637  vi src/descriptor_file.f90
+ 1638  hydro_name_arr
+ 1639  vim pamtra_vs_pyPamtra.nml
+ 1640  vi src/descriptor_file.f90
+ 1641  grep -r "descriptor_file" --include="*.f90" .
+ 1642  grep -r "descriptor_file_name" --include="*.f90" .
+ 1643  cd descriptorfiles/
+ 1644  ls
+ 1645  cd descriptor_file_2m_icon.txt
+ 1646  vi descriptor_file_2m_icon.txt
+ 1647  vi descriptor_file_2m_crystal
+ 1648  vi descriptor_file_2m_crystal.txt 
+ 1649  vi src/descriptor_file.f90
+ 1650  vi ../src/descriptor_file.f90
+ 1651  vi ../src/parse_options.f90 
+ 1652  cd ..
+ 1653  ./bin/pamtra < test_config.in
+ 1654  ./bin/pamtra 
+ 1655  grep -r "descriptor file does not exist!" --include="*.f90" .
+ 1656  vi src/descriptor_file.f90
+ 1657  ./bin/pamtra
+ 1658  vi src/descriptor_file.f90
+ 1659  vi ../src/parse_options.f90 
+ 1660  vi src/parse_options.f90 
+ 1661  ./bin/pamtra
+ 1662  vi src/descriptor_file.f90
+ 1663  make
+ 1664  ./bin/pamtra
+ 1665  vi src/parse_options.f90 
+ 1666  make
+ 1667  ./bin/pamtra
+ 1668  cd profile/
+ 1669  ls
+ 1670  vim example_input.lay
+ 1671  vim src/vars_atmosphere.f90
+ 1672  cd ../src/vars_atmosphere.f90
+ 1673  vi ../src/vars_atmosphere.f90
+ 1674  grep -r "\.lay" --include="*.f90" .
+ 1675  grep -r "lay" --include="*.f90" .
+ 1676  grep -r "example_input" --include="*.f90" .
+ 1677  cd ..
+ 1678  grep -r "example_input" --include="*.f90" .
+ 1679  vim src/parse_options.f90
+ 1680  cd ../pro
+ 1681  ls
+ 1682  cd profile/
+ 1683  ls
+ 1684  vim src/parse_options.f90
+ 1685  vim ../src/parse_options.f90
+ 1686  cd ..
+ 1687  make 
+ 1688  ./bin/pamtra
+ 1689  ls
+ 1690  cd examples/
+ 1691  ls
+ 1692  vi radar_example.py 
+ 1693  vi pamtra_icon_groundbased.ipynb
+ 1694  ls
+ 1695  vi readme
+ 1696  vi readme.md
+ 1697  vi simple_passive.ipynb
+ 1698  cd ..
+ 1699  ./bin/pamtra
+ 1700  vim src/parse_options.f90
+ 1701  make
+ 1702  ./bin/pamtra
+ 1703  vim src/parse_options.f90
+ 1704  cd examples/
+ 1705  ls
+ 1706  vi example_sensitivityToDensity.py
+ 1707  ./example_sensitivityToDensity.py 
+ 1708  vi example_sensitivityToDensity.py
+ 1709  cd ..
+ 1710  python3 examples/pamtra_vs_pyPamtra.py
+ 1711  pip install pyPamtra
+ 1712  make py
+ 1713  python3 examples/pamtra_vs_pyPamtra.py
+ 1714  make pyinstall
+ 1715  python3 -c "import pyPamtra; print(pyPamtra)"
+ 1716  export PYTHONPATH=$PYTHONPATH:/mnt/c/Users/grzegorczyk/AWACA/PAMTRA/pamtra/python
+ 1717  python3 -c "import pyPamtra; print(pyPamtra)"
+ 1718  python3 examples/pamtra_vs_pyPamtra.py
+ 1719  vi descriptorfiles/descriptor_file_COSMO_1mom.txt'
+ 1720  vi descriptorfiles/descriptor_file_COSMO_1mom.txt
+ 1721  cd bin 
+ 1722  ./pamtra
+ 1723  cd ../
+ 1724  python3 examples/pamtra_vs_pyPamtra.py
+ 1725  cd examples/
+ 1726  python3 pamtra_vs_pyPamtra.py
+ 1727  ls
+ 1728  cd ..
+ 1729  ls
+ 1730  cd output/
+ 1731  ls
+ 1732  cd ..
+ 1733  cd examples/
+ 1734  ls
+ 1735  ls -lta
+ 1736  cd tools
+ 1737  ls
+ 1738  cd ..
+ 1739  cd examples/
+ 1740  python3 pamtra_vs_pyPamtra.py
+ 1741  ls
+ 1742  vi pamtra_create_RT4_files.py
+ 1743  vim pamtra_vs_pyPamtra.nml
+ 1744  vim pamtra_mie_vs_tmatrix.py
+ 1745  python3 pamtra_mie_vs_tmatrix.py
+ 1746  ls
+ 1747  cd ..
+ 1748  vim src/parse_options.f90
+ 1749  make clean 
+ 1750  make
+ 1751  cd bin/
+ 1752  ./pamtra
+ 1753  cd ..
+ 1754  ./bin/pamtra
+ 1755  vim src/parse_options.f90
+ 1756  cd bin/
+ 1757  cd ..
+ 1758  cd bin/
+ 1759  ./pamtra
+ 1760  vi ../examples/pamtra_vs_pyPamtra.py
+ 1761  vi ../examples/pamtra_vs_pyPamtra.nml
+ 1762  vi ../examples/pamtra_vs_pyPamtra.py
+ 1763  ./pamtra < pamtra_vs_pyPamtra.nml
+ 1764  ./pamtra < ../examples/pamtra_vs_pyPamtra.nml
+ 1765  cd ..
+ 1766  grep -r ".nml" --include="*.f90" .
+ 1767  grep -r ".nml" --include="*.F90" .
+ 1768  vim src/settings.f90
+ 1769  grep -r "namelist_file" --include="*.F90" .
+ 1770  grep -r "namelist_file" --include="*.f90" .
+ 1771  vi src/parse_options.f90:
+ 1772  vim src/parse_options.f90
+ 1773  make 
+ 1774  cd bin
+ 1775  ./pamtra
+ 1776  vi ../examples/pamtra_vs_pyPamtra.nml
+ 1777  cd ..
+ 1778  cd data
+ 1779  ls
+ 1780  cd descriptorfiles/
+ 1781  ls
+ 1782  cd ..
+ 1783  ls
+ 1784  cd doc
+ 1785  ms
+ 1786  ls
+ 1787  cd source/
+ 1788  ls
+ 1789  vim installation.rst 
+ 1790  cd ..
+ 1791  cd pamtra/
+ 1792  ls
+ 1793  history 30
+ 1794  vi src/parse_options.f90
+ 1795  make clean 
+ 1796  make 
+ 1797  cd bin/
+ 1798  ./pamtra
+ 1799  cd ..
+ 1800  ls
+ 1801  cd descriptorfiles/
+ 1802  ls
+ 1803  ls
+ 1804  cd profile/
+ 1805  ls
+ 1806  cd ..
+ 1807  grep -r "surface_emissivity" --include="*.f90" .
+ 1808  grep -r "surface_emissivity" --include="*" .
+ 1809  vim test_config.in 
+ 1810  cd bin/
+ 1811  ./pamtra < ../test_config.in 
+ 1812  vim test_config.in 
+ 1813  vi ../test_config.in 
+ 1814  ./pamtra < ../test_config.in 
+ 1815  grep -r "surface_model" --include="*" .
+ 1816  cd ..
+ 1817  grep -r "surface_model" --include="*" .
+ 1818  vi ../test_config.in 
+ 1819  ./pamtra < ../test_config.in 
+ 1820  cd bin
+ 1821  ./pamtra < ../test_config.in 
+ 1822  vi ../test_config.in 
+ 1823  ./pamtra < ../test_config.in 
+ 1824  grep -r -i "rttov_readmw_atlas" --include="*.f90" .
+ 1825  cd ..
+ 1826  grep -r -i "rttov_readmw_atlas" --include="*.f90" .
+ 1827  vi src/telsem2.f90
+ 1828  grep -r -i "run_rt" --include="*.f90" .
+ 1829  grep -r -i "rttov_readmw_atlas" --include="*.f90" .
+ 1830  cd ..
+ 1831  make clean
+ 1832  cd pamtra/
+ 1833  make clean 
+ 1834  vi /src/mod_mwatlas_nt_bin.f90
+ 1835  vi src/mod_mwatlas_nt_bin.f90
+ 1836  cd bin/
+ 1837  ls
+ 1838  cd ..
+ 1839  ls
+ 1840  grep -r -i "telsem2" --include="*.f90" .
+ 1841  vim src/land_sfc_optics.f90
+ 1842  grep -r -i "land_sfc_optics_telsem2" --include="*.f90" .
+ 1843  vim src/sfc_optics.f90
+ 1844  grep -r -i "set_sfc_optics" --include="*.f90" .
+ 1845  vi src/run_rt.f90
+ 1846  grep -r -i "passive" --include="*.f90" .
+ 1847  vi src/settings.f90 
+ 1848  cd bin
+ 1849  make clean
+ 1850  make
+ 1851  cd ..
+ 1852  make clean 
+ 1853  make 
+ 1854  ls
+ 1855  vi test_config.in 
+ 1856  grep -r -i "passive" --include="*.f90" .
+ 1857  grep -r -i "emiss" --include="*.f90" .
+ 1858  vi test_config.in 
+ 1859  cd bin
+ 1860  ./pamtra < ../test_config.in
+ 1861  vi src/settings.f90 
+ 1862  make
+ 1863  vi src/settings.f90 
+ 1864  cd ..
+ 1865  vi src/settings.f90 
+ 1866  make
+ 1867  cd bin
+ 1868  ./pamtra
+ 1869  ncdump -h example_input.lev
+ 1870  cd ../examples/
+ 1871  ncdump -h example_input.lev
+ 1872  ls
+ 1873  cd ..
+ 1874  ls
+ 1875  cd profile/
+ 1876  ls
+ 1877  ncdump -h example_input.lev
+ 1878  cd ..
+ 1879  make clear
+ 1880  make clean
+ 1881  make py
+ 1882  cd examples/
+ 1883  ls
+ 1884  cp pamtra_vs_pyPamtra.py my_test.py
+ 1885  history 100
+ 1886  python3 my_test.py 
+ 1887  ls
+ 1888  history 1000 > test
+ 1889  vi test
+ 1890  rm my_test.py 
+ 1891  python3 pamtra_mie_vs_tmatrix.py
+ 1892  cd ..
+ 1893  vi src/settings.
+ 1894  vi src/settings.*
+ 1895  make clean 
+ 1896  cd examples/
+ 1897  cp pamtra_mie_vs_tmatrix.py my_test.py
+ 1898  vi my_test.py 
+ 1899  ls
+ 1900  vim pamtra_vs_pyPamtra.py
+ 1901  python3 my_test.py
+ 1902  vim pamtra_vs_pyPamtra.py
+ 1903  vi my_test.py
+ 1904  conda info --envs
+ 1905  python3 my_test.py
+ 1906  vi my_test.py
+ 1907  python3 my_test.py
+ 1908  ls
+ 1909  cd example_db/
+ 1910  ls
+ 1911  v03/
+ 1912  ls
+ 1913  cd v03/
+ 1914  ls
+ 1915  cd quad_L/
+ 1916  ls
+ 1917  cd numu_016/
+ 1918  ls
+ 1919  cd azno_030/
+ 1920  lq
+ 1921  ls
+ 1922  cd a0no_001/
+ 1923  ls
+ 1924  cd nsto_002/
+ 1925  ls
+ 1926  cd freq_3.550000E+10/
+ 1927  ls
+ 1928  cd phas_+01/
+ 1929  ls
+ 1930  cd temp_2.814E+02/
+ 1931  ls
+ 1932  cd dens_1.000E+03/
+ 1933  ls
+ 1934  cd er
+ 1935  cd refi_TKC/
+ 1936  ls
+ 1937  cd diam_1.000E-05/
+ 1938  l
+ 1939  ls
+ 1940  cd asra_1.000E+00/
+ 1941  ms
+ 1942  ls
+ 1943  cd alph_0.000E+00/
+ 1944  ls
+ 1945  cd beta_0.000E+00/
+ 1946  ls
+ 1947  cd ..
+ 1948  cd .
+ 1949  cd ..
+ 1950  ls
+ 1951  cd ..
+ 1952  ls
+ 1953  vim descriptorfiles/
+ 1954  cd examples/
+ 1955  vi my_test.py 
+ 1956  history 1000
+ 1957  python3 my_test.py
+ 1958  vi my_test.py 
+ 1959  ls
+ 1960  vi run_all_examples.py
+ 1961  vim pamtra_create_RT4_files.py
+ 1962  cd test
+ 1963  nano pamtra_icon_groundbased.ipynb
+ 1964  conda activate cosp-env
+ 1965  cd /mnt/c/Users/grzegorczyk/AWACA/PAMTRA/
+ 1966  ls
+ 1967  cd pamtra/
+ 1968  ls
+ 1969  cd examples/
+ 1970  vi my_test.py 
+ 1971  history 20
+ 1972  history 200
+ 1973  python3 my_test.py
+ 1974  history 2000 > hist

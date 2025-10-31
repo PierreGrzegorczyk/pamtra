@@ -59,6 +59,7 @@ subroutine read_descriptor_file(errorstatus)
   if (verbose >= 2) call report(info,'Start of ', nameOfRoutine)
 
 ! Check file existence
+  print *, 'file read', descriptor_file_name
   INQUIRE(FILE=trim(descriptor_file_name), EXIST=file_exists)
   if (.not.(file_exists)) then
     msg = 'descriptor file does not exist!'
