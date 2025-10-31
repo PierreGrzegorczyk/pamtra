@@ -1,0 +1,6 @@
+export PAMTRA_DATADIR=$(pwd)/data
+
+ 1977  make py
+ 1983  make pyinstall
+ 1989  export PYTHONPATH=$PYTHONPATH:/mnt/c/Users/grzegorczyk/AWACA/PAMTRA/pamtra/python
+ 1994  export PAMTRA_DATADIR=$(pwd)/data

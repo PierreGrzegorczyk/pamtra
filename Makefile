@@ -17,6 +17,7 @@ FC= gfortran #ifort
 CC= gcc #icc
 FCFLAGS=-c -fPIC -cpp -J$(OBJDIR) -I$(OBJDIR) #FCFLAGS=-c -fPIC -Wunused  -cpp -J$(OBJDIR) -I$(OBJDIR)
 #FCFLAGS=-g -c -fPIC -Wunused -O0 -cpp -J$(OBJDIR) -I$(OBJDIR)
+CFLAGS = -O -fPIC -std=c99
 
 NCFLAGS :=  $(shell $(NCCONF) --fflags)
 LFLAGS := -L/usr/lib/ -L/usr/local/lib/ -L/opt/homebrew/lib/ -llapack -L$(LIBDIR) -L../$(LIBDIR) -lblas -lz -lfftw3
@@ -168,7 +169,7 @@ $(BINDIR)$(BIN): $(FOBJECTS) $(FOBJECTS_NC) | $(BINDIR)
 	$(FC) -I$(OBJDIR) -o $(BINDIR)$(BIN) $(SRCDIR)pamtra.f90 $(FOBJECTS) $(FOBJECTS_NC) $(LFLAGS) $(LDFLAGS)
 
 $(OBJDIR)scatdb.o:  $(SRCDIR)scatdb.c  | $(OBJDIR)
-	$(CC) -O  -fPIC -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR)%.o:  $(SRCDIR)%.f90 | $(OBJDIR)
 	$(FC) $(FCFLAGS) $< -o $@

@@ -826,6 +826,7 @@ module vars_atmosphere
         "found nan in atmo_temp_lev")
     call assert_false(err,ANY(ISNAN(atmo_hgt_lev(nx,ny,1:atmo_nlyrs(nx,ny)+1))),&
         "found nan in atmo_hgt_lev")
+    !print *, 'pb',atmo_ngridx,atmo_ngridy,nx,ny,atmo_nlyrs(nx,ny)+1,atmo_hgt_lev(nx,ny,atmo_nlyrs(nx,ny)+1),atmo_hgt_lev(nx,ny,1)
     call assert_true(err,atmo_hgt_lev(nx,ny,atmo_nlyrs(nx,ny)+1)>atmo_hgt_lev(nx,ny,1),&
         "atmo_hgt_lev must be defined defined bottom-up")
     call assert_false(err,ANY(ISNAN(atmo_hgt(nx,ny,1:atmo_nlyrs(nx,ny)))),&

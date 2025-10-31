@@ -1,0 +1,15 @@
+# --- Minimal PAMTRA test configuration ---
+surface_model = FIXED
+freq = 35.0             # GHz
+temperature = 280.0     # K
+pressure = 1013.0       # hPa
+hydrotype = rain
+lwc = 1.0e-3            # liquid water content [kg/m3]
+re = 1.0e-4             # mean drop radius [m]
+angle = 0.0             # nadir view
+surface_temperature = 280.0
+surface_emissivity = 0.95
+passive=.false.
+outputfile = pamtra_test.out
+verbosity = 2
+
