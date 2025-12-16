@@ -24,7 +24,6 @@ p[p<1.]=1. #minimum value accepted by PAMTRA
 z = nc_data.variables['zfull'][:]
 time = nc_data.variables['time_counter'][:]
 
-print("alt",np.shape(Alt),Alt)
 
 #_________cosp data subcolumns________
 path="/home/grzegorc/AWACA/COSP/COSPv2.0_lmdz_hillman/driver/run"
@@ -58,30 +57,25 @@ lat=np.full(np.shape(T)[:-1],lat)
 q_hydro=np.zeros(np.shape(T))
 q_hydro=np.repeat(q_hydro[:,:,:,np.newaxis],5, axis=3)
 
-#separate ice of LS scheme and cirrus parameterization
-Qi_ice_only=np.zeros(np.shape(Qi))
-Qi_cirrus=np.zeros(np.shape(Qi))
-
-Qi_ice_only[np.where(T>235.15)]=Qi[np.where(T>235.15)]
-Qi_cirrus[np.where(T<=235.15)]=Qi[np.where(T<=235.15)]
-
 q_hydro[:,:,:,0]=Ql
-q_hydro[:,:,:,1]=Qi_ice_only
+q_hydro[:,:,:,1]=Qi
 q_hydro[:,:,:,2]=Qr
 q_hydro[:,:,:,3]=Qs
-q_hydro[:,:,:,4]=Qi_cirrus
 
 
 
 #________load PAMTRA______________
 imp.reload(pyPamtra)
-
-
 pam = pyPamtra.pyPamtra()
+
+jsel=66 #select time
 #________hydrometeor input________
 
 descriptorFile = "../descriptorfiles/descriptor_file_COSMO_1mom.txt"
 descriptorFile = "../descriptorfiles/LMDZ2.txt"
+
+#pam.df.readFile(descriptorFile)
+
 #Hydrometeor____properties
 
 #SNOW
@@ -103,7 +97,10 @@ pam.df.addHydrometeor(("liq", -99., 1, 1000, -99., -99., -99., -99. ,3,   1, "mo
 pam.df.addHydrometeor(("ice", -99., -1 , Rho_ice,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
 pam.df.addHydrometeor(("rain",-99.,  1 , 1000 , -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_rain,-99.0,"mie-sphere",rain_fallspeed,0.0))
 pam.df.addHydrometeor(("snow",-99., -1 , Rho_snow, -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"mie-sphere",snow_fallspeed,0.0))
-pam.df.addHydrometeor(("cirrus", -99., -1 , 917.,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
+pam.df.addHydrometeor(("cirrus", -99., -1 , 920.,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
+
+#pam.df.addHydrometeor(("cirrus", -99., 1 , 1000,  -99., -99.,-99. ,-99.  , 3 , 1, "mono_cosmo_ice", -99., -99., -99., -20e-6, -99., -99., "mie-sphere", "heymsfield10_particles",0.0))
+
 
 
 print('pam.df.nhydro',pam.df.nhydro)
@@ -118,15 +115,14 @@ print('ice', pam.df)
 #    print(k, np.shape(pam.p[k]))
 
 pamData = dict()
-jsel=-1
-pamData["lon"] = lon[:jsel,:]
-pamData["lat"] = lat[:jsel,:]
-pamData["temp"] = T[:jsel,:,:]
-pamData["relhum"] = RH[:jsel,:,:]
-pamData["hgt"] = z[:jsel,:,:]
-pamData["press"] = p[:jsel,:,:]
-pamData["hydro_q"] = q_hydro[:jsel,:,:]
-#pamData["obs_height"]=np.zeros(np.shape(p[:jsel,:,:]))
+pamData["lon"] = lon[jsel,0]
+pamData["lat"] = lat[jsel,0]
+pamData["temp"] = T[jsel,0,:]
+pamData["relhum"] = RH[jsel,0,:]
+pamData["hgt"] = z[jsel,0,:]
+pamData["press"] = p[jsel,0,:]
+pamData["hydro_q"] = np.max(q_hydro[:,0,:],0)
+
 print("z shape",np.shape(pamData["lon"]),np.shape(pamData["relhum"]))
 pam.createProfile(**pamData)
 
@@ -159,51 +155,34 @@ pam.nmlSet['tmatrix_db_path'] = 'example_db/'
 pam.nmlSet["passive"] = False
 #print('namelist',pam.nmlSet)
 
+
 #__________scattering method____________
 pam.df.data["scat_name"][:] = "tmatrix"
 pam.df.data["as_ratio"][:] = 1.0
 
-
+print("tmatrix or not", pam.df.data["scat_name"])
 #pam.set["pyVerbose"] = 10
 if 0==0: 
     print("Start to run")
-    pam.runParallelPamtra(94.0,
-                      pp_deltaX=1,    # 2 profiles in X per worker
-                      pp_deltaY=1,    # 1 profile in Y per worker
-                      pp_deltaF=1,    # 1 frequency per worker
-                      pp_local_workers="auto")  # detect CPU cores 
-    print("SHAPE",np.shape(pam.r["Ze"]))
-    plt.figure('test')
-    plt.imshow(pam.r["Ze"][:,0,:,0,0,0].transpose(),aspect='auto',vmin=-30,vmax=30)
-    plt.colorbar()
-    print("Run end")
+    pam.runPamtra(94.0)
+    #print("End to run")
+    print(np.shape(pam.r["Ze"]))
+    plt.figure("reflectivity")
+    plt.subplot(121)
+    plt.plot(pam.r['Ze'][0,0,:,0,0,0],pam.p['hgt'][0,0,:]/1000)
+    plt.ylabel('height [m]')
+    plt.xlim(-30,30)
+    plt.xlabel('reflectivity [dBZ]')
+
+    plt.subplot(122)
+    plt.plot(pam.p['hydro_q'][0,0,:]*1000,pam.p['hgt'][0,0,:]/1000)
+    plt.ylabel('height [m]')
+    plt.xlim(0,1)
+    plt.xlabel('qi')
+
     plt.show()
+    print(pam.r)
+    print("Run end")
+
     #shutil.rmtree('example_db')
-
-# Output NetCDF file path
-output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_cosp_final.nc"
-with Dataset(output_file, "w", format="NETCDF4") as nc_out:
-    
-    # Dimensions
-    nc_out.createDimension("time", len(time[:jsel]))
-    nc_out.createDimension("col", ncol)
-    nc_out.createDimension("level", T.shape[2])
-    nc_out.createDimension("hydro", 5)
-
-    # Variables simples
-    nc_out.createVariable("time", "f8", ("time",))[:] = time[:jsel]
-    nc_out.createVariable("col", "i4", ("col",))[:] = np.arange(ncol)
-    nc_out.createVariable("level", "i4", ("level",))[:] = Alt
-    nc_out.createVariable("hydro", "i4", ("hydro",))[:] = np.arange(5)
-
-    # Écriture des champs
-    nc_out.createVariable("lon", "f4", ("time", "col"))[:] = pamData["lon"]
-    nc_out.createVariable("lat", "f4", ("time", "col"))[:] = pamData["lat"]
-    nc_out.createVariable("temp", "f4", ("time", "col", "level"))[:] = pamData["temp"]
-    nc_out.createVariable("relhum", "f4", ("time", "col", "level"))[:] = pamData["relhum"]
-    nc_out.createVariable("hgt", "f4", ("time", "col", "level"))[:] = pamData["hgt"]
-    nc_out.createVariable("press", "f4", ("time", "col", "level"))[:] = pamData["press"]
-    nc_out.createVariable("hydro_q", "f4", ("time", "col", "level", "hydro"))[:] = pamData["hydro_q"]
-    nc_out.createVariable("Ze", "f4", ("time", "col", "level"))[:] = pam.r["Ze"][:,:,:,0,0,0]
-
-    print("PAMTRA output saved as NetCDF file  ",output_file)
+    #print('cleaning up done')
