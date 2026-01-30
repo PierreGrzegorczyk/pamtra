@@ -1,3 +1,5 @@
-export PYTHONPATH=$PYTHONPATH:/mnt/c/Users/grzegorczyk/AWACA/PAMTRA/pamtra/python
+#!/bin/bash
+
+export PYTHONPATH=/home/grzegorc/AWACA/PAMTRA/pamtra/python
 export PAMTRA_DATADIR=$(pwd)/data
 

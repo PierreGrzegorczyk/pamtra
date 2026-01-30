@@ -38,9 +38,10 @@ pam.set['pyVerbose'] = verbosity
 
 pam.runPamtra(freqs,checkData=False)
 plt.plot(pam.r["radar_vel"][0],pam.r["radar_spectra"][0,0,0,0,0])
-
+print(np.shape(pam.r["radar_vel"][0]),np.shape(pam.r["radar_spectra"][0,0,0,0,0]))
+plt.show()
 # sys.exit()
-
+print("FULL SPECTRA")
 pamFS = pyPamtra.pyPamtra()
 #!name       as_ratio    liq_ice     rho_ms    a_ms    b_ms    alpha    beta   moment_in   nbin      dist_name        p_1     p_2     p_3     p_4     d_1       d_2           scat_name   vel_size_mod           canting
 pamFS.df.addHydrometeor(('ice', 1.0, -1, 200,-99,-99, np.pi/4., 2, 0, 100, 'exp', 3000, 3e8, -99.0, -99.0, 100e-6,  1000e-6, 'mie-sphere', 'heymsfield10_particles',0.0))

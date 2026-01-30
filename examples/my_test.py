@@ -58,10 +58,18 @@ lat=np.full(np.shape(T)[:-1],lat)
 q_hydro=np.zeros(np.shape(T))
 q_hydro=np.repeat(q_hydro[:,:,:,np.newaxis],5, axis=3)
 
+#separate ice of LS scheme and cirrus parameterization
+Qi_ice_only=np.zeros(np.shape(Qi))
+Qi_cirrus=np.zeros(np.shape(Qi))
+
+Qi_ice_only[np.where(T>235.15)]=Qi[np.where(T>235.15)]
+Qi_cirrus[np.where(T<=235.15)]=Qi[np.where(T<=235.15)]
+
 q_hydro[:,:,:,0]=Ql
-q_hydro[:,:,:,1]=Qi
+q_hydro[:,:,:,1]=Qi_ice_only
 q_hydro[:,:,:,2]=Qr
 q_hydro[:,:,:,3]=Qs
+q_hydro[:,:,:,4]=Qi_cirrus
 
 
 
@@ -95,7 +103,7 @@ pam.df.addHydrometeor(("liq", -99., 1, 1000, -99., -99., -99., -99. ,3,   1, "mo
 pam.df.addHydrometeor(("ice", -99., -1 , Rho_ice,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
 pam.df.addHydrometeor(("rain",-99.,  1 , 1000 , -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_rain,-99.0,"mie-sphere",rain_fallspeed,0.0))
 pam.df.addHydrometeor(("snow",-99., -1 , Rho_snow, -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"mie-sphere",snow_fallspeed,0.0))
-pam.df.addHydrometeor(("cirrus", -99., -1 , 920.,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
+pam.df.addHydrometeor(("cirrus", -99., -1 , 917.,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
 
 
 print('pam.df.nhydro',pam.df.nhydro)

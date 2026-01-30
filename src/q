@@ -1,0 +1,1010 @@
+module scatProperties
+
+  use kinds
+  use settings, only: maxnleg
+  implicit none
+
+  !rt3 style
+  real(kind=dbl) :: salbedo
+  real(kind=dbl), dimension(6,maxnleg) :: legen_coef
+  integer :: nlegen_coef
+
+  !rt4 style
+
+  !needed by rt3 and rt4
+  character(len=60) :: scat_name
+  character(len=30) :: vel_size_mod
+  real(kind=dbl), allocatable, dimension(:,:) :: radar_spec
+
+contains
+
+  subroutine allocate_scatProperties()
+    use kinds
+    use settings, only: radar_nfft_aliased, radar_npol
+    implicit none
+    allocate(radar_spec(radar_npol,radar_nfft_aliased)) 
+    return
+  end subroutine allocate_scatProperties
+
+  subroutine prepare_rt3_scatProperties()
+    use kinds
+    implicit none
+
+    salbedo     = 0.d0
+    legen_coef(:,:)   = 0.d0
+    nlegen_coef     = 0
+    return
+  end subroutine prepare_rt3_scatProperties
+
+  subroutine prepare_rt4_scatProperties()
+    use kinds
+    use vars_rt, only: rt_kexttot,&
+      rt_back,&
+      rt_scattermatrix, &
+      rt_extmatrix, &
+      rt_emisvec
+    use vars_index, only: i_z
+
+    implicit none
+
+    rt_kexttot(i_z) = 0.d0  
+    rt_back(i_z,:) = 0.d0
+
+    rt_scattermatrix(i_z,:,:,:,:,:)=0.d0
+    rt_extmatrix(i_z,:,:,:,:)=0.d0
+    rt_emisvec(i_z,:,:,:)=0.d0
+
+    radar_spec(:,:) = 0.d0
+    return
+
+  end subroutine prepare_rt4_scatProperties
+
+  subroutine calc_scatProperties(errorstatus)
+
+    use kinds
+    use settings, only: nstokes,&
+      nummu,&
+      radar_nfft_aliased, &
+      active, &
+      passive, &
+      radar_mode, &
+      maxnleg, &
+      freqs, &
+      hydro_fullSpec, &
+      radar_pol, &
+      radar_npol, &
+      save_psd
+    use mie_spheres, only: calc_mie_spheres
+    use tmatrix, only: calc_tmatrix
+    use rayleigh_gans, only: calc_self_similar_rayleigh_gans, &
+      calc_self_similar_rayleigh_gans_passive, &
+      calc_self_similar_rayleigh_gans_rt3, &
+      calc_rayleigh_gans, &
+      calc_rayleigh, calc_ssrga
+    use vars_rt, only: rt_kexttot,&
+      rt_back,&
+      rt_scattermatrix, &
+      rt_extmatrix, &
+      rt_emisvec, &
+      rt_hydros_present
+    use vars_output, only: out_psd_bscat
+    use report_module
+    use drop_size_dist, only: liq_ice,&
+      nbin,&
+      diameter2scat, &
+      delta_d_ds, &
+      n_ds,&
+      density2scat,&
+      as_ratio, &
+      pressure, &
+      layer_t, &
+      mass_ds, &
+      area_ds, &
+      dsd_canting, &
+      soft_rho_eff, &
+      d_ds
+    use constants, only: pi, Im
+    use vars_index, only: i_x, i_y, i_z, i_f, i_h, i_p
+    use vars_hydroFullSpec, only: hydrofs_as_ratio, &
+      hydrofs_canting, &
+      hydrofs_rg_beta_ds, &
+      hydrofs_rg_zeta_ds, &
+      hydrofs_rg_gamma_ds, &
+      hydrofs_rg_kappa_ds
+
+    implicit none
+
+    real(kind=dbl) :: freq
+
+    real(kind=dbl), dimension(maxnleg) :: legen_coef1_hydro 
+    real(kind=dbl), dimension(maxnleg) :: legen_coef2_hydro
+    real(kind=dbl), dimension(maxnleg) :: legen_coef3_hydro 
+    real(kind=dbl), dimension(maxnleg) :: legen_coef4_hydro
+
+    real(kind=dbl), dimension(nstokes,nummu,nstokes,nummu,4) :: scatter_matrix_hydro
+    real(kind=dbl), dimension(nstokes,nstokes,nummu,2) :: extinct_matrix_hydro
+    real(kind=dbl), dimension(nstokes,nummu,2) :: emis_vector_hydro
+    real(kind=dbl), dimension(radar_nfft_aliased) :: radar_spec_hydro
+    real(kind=dbl), dimension(2,2) :: Sback_hydro
+    real(kind=dbl), dimension(nbin) :: num_density
+    real(kind=dbl), dimension(radar_npol) :: back_hydro
+    real(kind=dbl), dimension(radar_npol,nbin) :: back_spec_dia
+    real(kind=dbl), dimension(nbin) :: back_spec_mie, back_spec_liu, back_spec_hong
+    real(kind=dbl), dimension(nbin) :: back_spec_rg, back_spec_ssrg
+    real(kind=dbl), allocatable, dimension(:) :: as_ratio_list
+    real(kind=dbl), allocatable, dimension(:) :: canting_list
+    real(kind=dbl), allocatable, dimension(:) :: rg_beta_list
+    real(kind=dbl), allocatable, dimension(:) :: rg_zeta_list
+    real(kind=dbl), allocatable, dimension(:) :: rg_gamma_list
+    real(kind=dbl), allocatable, dimension(:) :: rg_kappa_list
+    real(kind=dbl) :: kext_hydro
+    real(kind=dbl) :: salb_hydro
+    real(kind=dbl) :: back_hydro_mie, back_hydro_liu, back_hydro_hong, back_hydro_ssrg
+    real(kind=dbl) :: back_hydro_rg
+    real(kind=dbl) :: refre
+    real(kind=dbl) :: refim
+    real(kind=dbl) :: absind
+    real(kind=dbl) :: abscof
+    real(kind=dbl) :: rg_kappa
+    real(kind=dbl) :: rg_beta
+    real(kind=dbl) :: rg_gamma
+    real(kind=dbl) :: rg_zeta
+
+    character(60) :: tokenized(4)
+
+    integer(kind=long) :: pos1, pos2, nn 
+
+    complex(kind=dbl) :: refIndex  
+
+    integer :: nlegen_coef_hydro
+    integer :: jj
+    integer(kind=long) :: liu_type, hong_type
+
+    integer(kind=long) :: errorstatus
+    integer(kind=long) :: err = 0
+    character(len=80) :: msg
+    character(len=40) :: nameOfRoutine = 'calc_scatProperties'
+
+    interface
+      subroutine radar_spectrum(&
+        errorstatus, &
+        nbins,&             !in
+        diameter_spec,&     !in
+        back,&              !in
+        back_spec,&         !in
+        temp,&              !in
+        press,&             !in
+        frequency,&         !in
+        rho_particle,&      !in
+        vel_size_mod,&      !in
+        mass,&              !in
+        area,&              !in
+        particle_spec)      !out
+
+        use kinds
+        use settings, only: radar_nfft_aliased
+        implicit none
+
+        integer,intent(in) ::  nbins 
+
+        real(kind=dbl), dimension(nbins),intent(in):: diameter_spec, back_spec
+        real(kind=dbl), dimension(nbins),intent(in):: mass, area, rho_particle
+        character(len=30),intent(in) :: vel_size_mod
+        real(kind=dbl), intent(in):: temp, frequency, press,back
+        real(kind=dbl), intent(out), dimension(radar_nfft_aliased):: particle_spec
+        integer(kind=long), intent(out) :: errorstatus
+      end subroutine radar_spectrum
+    end interface
+
+    if (verbose >= 3) call report(info,'Start of ', nameOfRoutine)
+
+    err = 0
+
+    if ((scat_name == "disabled") .or. (.not. rt_hydros_present(i_z))) then
+      if (verbose >= 3) print*, "OK, we are done here"
+      return
+    end if
+    freq = freqs(i_f)
+
+    ! initialize empty results
+    emis_vector_hydro(:,:,:)        = 0.d0
+    extinct_matrix_hydro(:,:,:,:)   = 0.d0
+    scatter_matrix_hydro(:,:,:,:,:) = 0.d0
+    radar_spec_hydro(:) = 0.d0
+    Sback_hydro(:,:)    = 0.d0
+
+    legen_coef1_hydro(:)   = 0.d0
+    legen_coef2_hydro(:)  = 0.d0
+    legen_coef3_hydro(:)  = 0.d0
+    legen_coef4_hydro(:)  = 0.d0
+    nlegen_coef_hydro     = 0
+
+    ! normalize particle density
+    num_density = n_ds / delta_d_ds
+
+
+    !get the refractive index
+    if (liq_ice == 1) then
+      call ref_water(err,0.d0, layer_t-273.15, freq, refre, refim, absind, abscof)
+      if (err > 0) then
+        errorstatus = fatal
+        msg = 'Error in ref_water'
+        call report(errorstatus, msg, nameOfRoutine)
+        return
+      end if
+    else if (liq_ice == -1) then
+      call ref_ice(layer_t, freq, refre, refim)
+    else
+      errorstatus = fatal
+      print*,"liq_ice=", liq_ice
+      msg = 'Did not understand variable liq_ice'
+      call report(errorstatus, msg, nameOfRoutine)
+      return
+    end if
+    refIndex = refre-Im*refim  ! mimicking a
+
+
+    !some fixed settings for Tmatrix and rg
+    allocate(as_ratio_list(nbin))
+    allocate(canting_list(nbin))
+    allocate(rg_beta_list(nbin))
+    allocate(rg_kappa_list(nbin))
+    allocate(rg_gamma_list(nbin))
+    allocate(rg_zeta_list(nbin))
+
+    ! When using SSRGA in active (calc_self_similar_rayleigh_gans) or passive mode (calc_self_similar_rayleigh_gans_rt3), SSRGA parameters beta, kappa, gamma, and zeta can be input. 
+    ! alpha_eff corresponds to the aspect ratio for horizontally aligned particles and vertical radar
+
+    if (hydro_fullSpec) then 
+      ! when fullSpec=True: beta, kappa, gamma, and zeta are filled with default values from Hogan and Westbrook 2014 in descriptorFile.py 
+      ! other values for beta, kappa, gamma, and zeta can be input with rg_xx_ds where xx is the respective parameter
+      ! input of beta, kappa, gamma, and zeta as string is not supported in fullSpec mode   
+
+      as_ratio_list(:) = hydrofs_as_ratio(i_x,i_y,i_z,i_h,:)
+      canting_list(:) = hydrofs_canting(i_x,i_y,i_z,i_h,:)
+      rg_beta_list(:) = hydrofs_rg_beta_ds(i_x,i_y,i_z,i_h,:)
+      rg_kappa_list(:) = hydrofs_rg_kappa_ds(i_x,i_y,i_z,i_h,:)
+      rg_gamma_list(:) = hydrofs_rg_gamma_ds(i_x,i_y,i_z,i_h,:)
+      rg_zeta_list(:) = hydrofs_rg_zeta_ds(i_x,i_y,i_z,i_h,:)
+
+
+    else
+      ! when fullSpec=False: beta, kappa, gamma, and zeta are filled with default values from Hogan and Westbrook 2014 in this file
+      ! other values for beta, kappa, gamma, and zeta can be input as string ssrga_kappa_beta_gamma_zeta
+      ! string can be cut after each parameter and the rest is filled with default values; the order must be kept   
+
+      as_ratio_list(:) =  as_ratio
+      canting_list(:) =  dsd_canting
+      rg_beta_list(:) = rg_beta
+      rg_kappa_list(:) = rg_kappa
+      rg_gamma_list(:) = rg_gamma
+      rg_zeta_list(:) = rg_zeta
+    end if
+
+    where (canting_list < 0) canting_list = 0.d0
+    where (isnan(canting_list)) canting_list = 0.d0
+    where (as_ratio_list < 0) as_ratio_list = 0.d0
+    where (isnan(as_ratio_list)) as_ratio_list = 0.d0
+!!!!modern RT4 routines !!!
+    if (TRIM(scat_name) == "tmatrix") then
+
+      call calc_tmatrix(err,&
+        freq*1.d9,&
+        refIndex,&
+        liq_ice,&
+        nbin,&
+        diameter2scat, &
+        delta_d_ds, &
+        num_density,&
+        density2scat,&
+        as_ratio_list,& 
+        canting_list, &
+        layer_t, &
+        scatter_matrix_hydro(:,:,:,:,1:2),&
+        extinct_matrix_hydro(:,:,:,1),&
+        emis_vector_hydro(:,:,1),&
+        back_spec_dia,&
+        Sback_hydro)
+
+      if (allocated(as_ratio_list)) deallocate(as_ratio_list)
+      if (allocated(canting_list)) deallocate(canting_list)
+
+      if (err /= 0) then
+        msg = 'error in calc_tmatrix!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+      !fill up the matrices
+      scatter_matrix_hydro(:,:,:,:,4) = scatter_matrix_hydro(:,:,:,:,1) 
+      scatter_matrix_hydro(:,:,:,:,3) = scatter_matrix_hydro(:,:,:,:,2)
+      extinct_matrix_hydro(:,:,:,2) = extinct_matrix_hydro(:,:,:,1)
+      emis_vector_hydro(:,:,2) = emis_vector_hydro(:,:,1)
+
+      do i_p= 1, radar_npol
+        if (radar_pol(i_p) == "NN") then 
+          back_hydro(i_p) = Sback_hydro(1,1)
+           ! scatter_matrix(A,B;C;D;E) backscattering is M11 of Mueller or Scattering Matrix (A;C=1), 
+           ! in quadrature 2 (E) first 16 (B) is 180deg (upwelling), 2nd 16 (D) 0deg (downwelling). 
+           ! this definition is looking from BELOW, scatter_matrix(1,16,1,16,3) would be from above!
+        else if (radar_pol(i_p) == "HH") then
+          !1.Vivekanandan, J., Adams, W. M. & Bringi, V. N. Rigorous Approach to Polarimetric Radar Modeling of Hydrometeor Orientation Distributions. Journal of Applied Meteorology 30, 1053-1063 (1991).
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            - Sback_hydro(1,2) & 
+                            - Sback_hydro(2,1) & 
+                            + Sback_hydro(2,2))*0.5
+        else if (radar_pol(i_p) == "VV") then
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            + Sback_hydro(1,2) & 
+                            + Sback_hydro(2,1) & 
+                            + Sback_hydro(2,2))*0.5
+        else if (radar_pol(i_p) == "HV") then
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            - Sback_hydro(1,2) & 
+                            + Sback_hydro(2,1) & 
+                            - Sback_hydro(2,2))*0.5
+        else if (radar_pol(i_p) == "VH") then
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            + Sback_hydro(1,2) & 
+                            - Sback_hydro(2,1) & 
+                            - Sback_hydro(2,2))*0.5 
+        else
+          errorstatus = fatal
+          msg = 'do not understand radar_pol(i_p): '//radar_pol(i_p)
+          call report(errorstatus, msg, nameOfRoutine)
+          return
+        end if
+      end do
+      if (verbose >= 5) then
+        print*, "S11",scatter_matrix_hydro(1,16,1,16,2)
+        print*, "S12",scatter_matrix_hydro(1,16,2,16,2) 
+        print*, "S21",scatter_matrix_hydro(2,16,1,16,2) 
+        print*, "S22",scatter_matrix_hydro(2,16,2,16,2) 
+      end if
+
+      back_hydro(:) = 4*pi*back_hydro(:)!/k**2 !eq 4.82 Bohren&Huffman without k**2 (because of different definition of Mueller matrix according to Mishenko AO 2000). note that scatter_matrix contains already squared entries!
+      kext_hydro = extinct_matrix_hydro(1,1,16,1) !11 of extinction matrix (=not polarized), at 0deg, first quadrature. equal to extinct_matrix(1,1,16,2)
+
+    else if (scat_name(:5) == "ssrga") then
+      if (len(trim(scat_name)) > 5) then
+        pos1 = 7
+        nn = 0
+        tokenized(2) = '1.0' ! default value for rg_beta
+        tokenized(3) = '1.66' ! default value for rg_gamma
+        tokenized(4) = '1.0' ! default value for rg_zeta
+        pos2 = index(scat_name(pos1:), "_")
+        do
+          nn = nn + 1
+          if (pos2 == 0) then ! no more _
+            tokenized(nn) = scat_name(pos1:)
+            exit
+          end if
+          !print*, scat_name(pos1:pos1+pos2-2), nn
+          tokenized(nn) = scat_name(pos1:pos1+pos2-2)
+          pos1 = pos2+pos1
+          pos2 = index(scat_name(pos1:), "_")
+        end do
+        read(tokenized(1),*) rg_kappa
+        read(tokenized(2),*) rg_beta
+        read(tokenized(3),*) rg_gamma
+        read(tokenized(4),*) rg_zeta
+      else
+        !take default values for aggregates of bullet rosettes or columns from Hogan and Westbrook 2014
+        rg_kappa = 0.25d0 !0.19d0 1.00_1.66_0.04
+        rg_beta = 1.0d0   !0.23d0
+        rg_gamma = 1.66d0 !5.d0/3.d0
+        rg_zeta = 0.04 !1.0d0
+      end if
+
+
+      call calc_ssrga(err,&
+        freq*1.d9,&
+        liq_ice,&
+        nbin,&
+        diameter2scat, &
+        delta_d_ds, &
+        num_density,&
+        mass_ds, &
+        refre, &
+        refim, & !positive(?)
+        rg_kappa, &
+        rg_beta, &
+        rg_gamma, &
+        rg_zeta, &
+        as_ratio_list,& 
+        canting_list, &
+        scatter_matrix_hydro(:,:,:,:,1:2),&
+        extinct_matrix_hydro(:,:,:,1),&
+        emis_vector_hydro(:,:,1),&
+        back_spec_dia,&
+        Sback_hydro)
+
+
+        !OUT from rt3 style not needed
+        !kext_hydro,&
+        !salb_hydro,&
+        !back_hydro_ssrg,&
+        !nlegen_coef_hydro,&
+        !legen_coef1_hydro,&
+        !legen_coef2_hydro,&
+        !legen_coef3_hydro,&
+        !legen_coef4_hydro,&
+        !back_spec_ssrg
+
+      if (allocated(as_ratio_list)) deallocate(as_ratio_list)
+      if (allocated(canting_list)) deallocate(canting_list)
+
+      if (err /= 0) then
+        msg = 'error in calc_ssrga!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+      !fill up the matrices
+      scatter_matrix_hydro(:,:,:,:,4) = scatter_matrix_hydro(:,:,:,:,1) 
+      scatter_matrix_hydro(:,:,:,:,3) = scatter_matrix_hydro(:,:,:,:,2)
+      extinct_matrix_hydro(:,:,:,2) = extinct_matrix_hydro(:,:,:,1)
+      emis_vector_hydro(:,:,2) = emis_vector_hydro(:,:,1)
+
+      do i_p= 1, radar_npol
+        if (radar_pol(i_p) == "NN") then 
+          back_hydro(i_p) = Sback_hydro(1,1)
+           ! scatter_matrix(A,B;C;D;E) backscattering is M11 of Mueller or Scattering Matrix (A;C=1), 
+           ! in quadrature 2 (E) first 16 (B) is 180deg (upwelling), 2nd 16 (D) 0deg (downwelling). 
+           ! this definition is looking from BELOW, scatter_matrix(1,16,1,16,3) would be from above!
+        else if (radar_pol(i_p) == "HH") then
+          !1.Vivekanandan, J., Adams, W. M. & Bringi, V. N. Rigorous Approach to Polarimetric Radar Modeling of Hydrometeor Orientation Distributions. Journal of Applied Meteorology 30, 1053-1063 (1991).
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            - Sback_hydro(1,2) & 
+                            - Sback_hydro(2,1) & 
+                            + Sback_hydro(2,2))*0.5
+        else if (radar_pol(i_p) == "VV") then
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            + Sback_hydro(1,2) & 
+                            + Sback_hydro(2,1) & 
+                            + Sback_hydro(2,2))*0.5
+        else if (radar_pol(i_p) == "HV") then
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            - Sback_hydro(1,2) & 
+                            + Sback_hydro(2,1) & 
+                            - Sback_hydro(2,2))*0.5
+        else if (radar_pol(i_p) == "VH") then
+          back_hydro(i_p) = ( Sback_hydro(1,1) &
+                            + Sback_hydro(1,2) & 
+                            - Sback_hydro(2,1) & 
+                            - Sback_hydro(2,2))*0.5 
+        else
+          errorstatus = fatal
+          msg = 'do not understand radar_pol(i_p): '//radar_pol(i_p)
+          call report(errorstatus, msg, nameOfRoutine)
+          return
+        end if
+      end do
+      if (verbose >= 5) then
+        print*, "S11",scatter_matrix_hydro(1,16,1,16,2)
+        print*, "S12",scatter_matrix_hydro(1,16,2,16,2) 
+        print*, "S21",scatter_matrix_hydro(2,16,1,16,2) 
+        print*, "S22",scatter_matrix_hydro(2,16,2,16,2) 
+      end if
+
+      back_hydro(:) = 4*pi*back_hydro(:)!/k**2 !eq 4.82 Bohren&Huffman without k**2 (because of different definition of Mueller matrix according to Mishenko AO 2000). note that scatter_matrix contains already squared entries!
+      kext_hydro = extinct_matrix_hydro(1,1,16,1) !11 of extinction matrix (=not polarized), at 0deg, first quadrature. equal to extinct_matrix(1,1,16,2)  
+
+      ! rayleigh gans only for active!
+    else if (scat_name(:16) == "ss-rayleigh-gans") then
+      if (len(trim(scat_name)) > 16) then
+        tokenized(2) = '0.23' ! default value for rg_beta 
+        tokenized(3) = '1.667' ! default value for rg_gamma = 5.d0/3.d0
+        tokenized(4) = '1.0' ! default value for rg_zeta
+        pos1 = 18
+        nn = 0
+        pos2 = index(scat_name(pos1:), "_")
+        do
+          nn = nn + 1
+          if (pos2 == 0) then ! no more _
+            tokenized(nn) = scat_name(pos1:)
+            exit
+          end if
+          tokenized(nn) = scat_name(pos1:pos1+pos2-2)
+          pos1 = pos2+pos1
+          pos2 = index(scat_name(pos1:), "_")
+        end do
+        
+        read(tokenized(1),*) rg_kappa
+        read(tokenized(2),*) rg_beta
+        read(tokenized(3),*) rg_gamma
+        read(tokenized(4),*) rg_zeta
+
+      else
+        !take default values for aggregates of bullet rosettes or columns from Hogan and Westbrook 2014
+        rg_kappa = 0.19d0
+        rg_beta = 0.23d0
+        rg_gamma = 5.d0/3.d0 
+        rg_zeta = 1.d0
+      end if
+
+      if (verbose >= 5) print*,scat_name, "test", rg_gamma, rg_kappa, rg_beta, rg_zeta
+
+      if (active) then
+        call calc_self_similar_rayleigh_gans(err,&
+          freq*1d9,&
+          liq_ice, &
+          nbin,&
+          diameter2scat,&
+          delta_d_ds, &
+          num_density,&
+          mass_ds, &
+          as_ratio_list, &
+          canting_list, &
+          refre, &
+          refim, & !positive(?)
+          !rg_kappa, &
+          !rg_beta, &
+          !rg_gamma, &
+          !rg_zeta, &
+          ! use size bin arrays
+          rg_kappa_list, &
+          rg_beta_list, &
+          rg_gamma_list, &
+          rg_zeta_list, &
+          !OUT
+          back_spec_rg, &
+          back_hydro_rg )
+
+        kext_hydro = 0.d0
+        salb_hydro = 0.d0
+
+        ! for back Rayleigh HH and VV polarisatuion does not matter and cross-pol is null
+        do i_p=1, radar_npol
+          if ((radar_pol(i_p) == "NN").or.(radar_pol(i_p) == "HH").or.(radar_pol(i_p) == "VV")) then
+            back_spec_dia(i_p,:) = back_spec_rg(:)
+            back_hydro(i_p) = back_hydro_rg
+          else if ((radar_pol(i_p) == "HV").or.(radar_pol(i_p) == "VH")) then
+            back_spec_dia(i_p,:) = 0.0d0
+            back_hydro(i_p) = 0.0d0
+          else
+            msg = 'do not understand radar_pol(i_p):'//radar_pol(i_p)
+            err = fatal
+            call report(err, msg, nameOfRoutine)
+            errorstatus = err
+            return
+          end if
+        end do
+
+      else if (passive) then ! change rg_kappa etc to rg_kappa_list
+        call calc_self_similar_rayleigh_gans_passive(err,&
+          freq*1d9,&
+          liq_ice, &
+          nbin,&
+          diameter2scat,&
+          delta_d_ds, &
+          num_density,&
+          mass_ds, &
+          as_ratio_list, &
+          canting_list, &
+          refre, &
+          refim, & !positive(?)
+          rg_kappa, &
+          rg_beta, &
+          rg_gamma, &
+          !rg_zeta_list, &
+          !OUT
+          scatter_matrix_hydro(:,:,:,:,1:2),&
+          extinct_matrix_hydro(:,:,:,1),&
+          emis_vector_hydro(:,:,1)&
+          )
+
+        !fill up the matrices
+        scatter_matrix_hydro(:,:,:,:,4) = scatter_matrix_hydro(:,:,:,:,1) 
+        scatter_matrix_hydro(:,:,:,:,3) = scatter_matrix_hydro(:,:,:,:,2)
+        extinct_matrix_hydro(:,:,:,2) = extinct_matrix_hydro(:,:,:,1)
+        emis_vector_hydro(:,:,2) = emis_vector_hydro(:,:,1)
+
+        kext_hydro = 0.d0
+        salb_hydro = 0.d0        
+      end if
+
+      if (allocated(as_ratio_list)) deallocate(as_ratio_list)
+      if (allocated(canting_list)) deallocate(canting_list)
+      if (allocated(rg_zeta_list)) deallocate(rg_zeta_list)
+      if (allocated(rg_gamma_list)) deallocate(rg_gamma_list)
+      if (allocated(rg_kappa_list)) deallocate(rg_kappa_list)
+      if (allocated(rg_beta_list)) deallocate(rg_beta_list)
+
+
+      if (err /= 0) then
+        msg = 'error in calc_self_similar_rayleigh_gans!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+      ! rayleigh gans only for active!
+    else if (TRIM(scat_name) == "rayleigh-gans") then
+
+      call calc_rayleigh_gans(err,&
+        freq*1d9,&
+        liq_ice, &
+        nbin,&
+        diameter2scat,&
+        delta_d_ds, &
+        num_density,&
+        density2scat, &
+        as_ratio_list, &
+        canting_list, &
+        refre, &
+        refim, & !positive(?)
+        !OUT
+        back_spec_rg, &
+        back_hydro_rg )
+
+      kext_hydro = 0.d0
+      salb_hydro = 0.d0
+
+      if (allocated(as_ratio_list)) deallocate(as_ratio_list)
+      if (allocated(canting_list)) deallocate(canting_list)
+
+      ! for back Rayleigh HH and VV polarisatuion does not matter and cross-pol is null
+      do i_p=1, radar_npol
+        if ((radar_pol(i_p) == "NN").or.(radar_pol(i_p) == "HH").or.(radar_pol(i_p) == "VV")) then
+          back_spec_dia(i_p,:) = back_spec_rg(:)
+          back_hydro(i_p) = back_hydro_rg
+        else if ((radar_pol(i_p) == "HV").or.(radar_pol(i_p) == "VH")) then
+          back_spec_dia(i_p,:) = 0.0d0
+          back_hydro(i_p) = 0.0d0
+        else
+          msg = 'do not understand radar_pol(i_p):'//radar_pol(i_p)
+          err = fatal
+          call report(err, msg, nameOfRoutine)
+          errorstatus = err
+          return
+        end if
+      end do
+
+      if (err /= 0) then
+        msg = 'error in calc_rayleigh_gans!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+       ! pure rayleigh d**6 only for active!
+    else if (TRIM(scat_name) == "rayleigh") then
+
+      call calc_rayleigh(err,&
+        freq*1d9,&
+        liq_ice, &
+        nbin,&
+        diameter2scat,&
+        delta_d_ds, &
+        num_density,&
+        density2scat, &
+        refre, &
+        refim, & !positive(?)
+        !OUT
+        back_spec_rg, &
+        back_hydro_rg )
+
+      kext_hydro = 0.d0
+      salb_hydro = 0.d0
+
+      if (allocated(as_ratio_list)) deallocate(as_ratio_list)
+      if (allocated(canting_list)) deallocate(canting_list)
+
+      ! for back Rayleigh HH and VV polarisatuion does not matter and cross-pol is null
+      do i_p=1, radar_npol
+        if ((radar_pol(i_p) == "NN").or.(radar_pol(i_p) == "HH").or.(radar_pol(i_p) == "VV")) then
+          back_spec_dia(i_p,:) = back_spec_rg(:)
+          back_hydro(i_p) = back_hydro_rg
+        else if ((radar_pol(i_p) == "HV").or.(radar_pol(i_p) == "VH")) then
+          back_spec_dia(i_p,:) = 0.0d0
+          back_hydro(i_p) = 0.0d0
+        else
+          msg = 'do not understand radar_pol(i_p):'//radar_pol(i_p)
+          err = fatal
+          call report(err, msg, nameOfRoutine)
+          errorstatus = err
+          return
+        end if
+      end do
+
+      if (err /= 0) then
+        msg = 'error in calc_rayleigh!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+!!!!old style RT3 routines !!!
+
+    else if (TRIM(scat_name) == "mie-sphere") then
+
+      call calc_mie_spheres(err,&
+        freq*1d9,&
+        layer_t,&
+        liq_ice,&
+        nbin,&
+        diameter2scat,&
+        delta_d_ds, &
+        num_density,&
+        density2scat, &
+        refre, &
+        refim, & !positive(?)
+        !OUT
+        kext_hydro,&
+        salb_hydro,&
+        back_hydro_mie,&
+        nlegen_coef_hydro,&
+        legen_coef1_hydro,&
+        legen_coef2_hydro,&
+        legen_coef3_hydro,&
+        legen_coef4_hydro,&
+        back_spec_mie)    
+
+      ! for back mie HH and VV polarisatuion does not matter and cross-pol is null
+      do i_p=1, radar_npol
+        if ((radar_pol(i_p) == "NN").or.(radar_pol(i_p) == "HH").or.(radar_pol(i_p) == "VV")) then
+          back_spec_dia(i_p,:) = back_spec_mie(:)
+          back_hydro(i_p) = back_hydro_mie
+        else if ((radar_pol(i_p) == "HV").or.(radar_pol(i_p) == "VH")) then
+          back_spec_dia(i_p,:) = 0.0d0
+          back_hydro(i_p) = 0.0d0
+        else
+          msg = 'do not understand radar_pol(i_p):'//radar_pol(i_p)
+          err = fatal
+          call report(err, msg, nameOfRoutine)
+          errorstatus = err
+          return
+        end if
+      end do
+
+      nlegen_coef = max(nlegen_coef,nlegen_coef_hydro)
+      if (err /= 0) then
+        msg = 'error in calc_mie_spheres!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+    else if (TRIM(scat_name(:8)) == "ssrg-rt3") then
+      if (len(trim(scat_name)) > 8) then
+        pos1 = 10
+        nn = 0
+        tokenized(4) = '1.0' ! default value for rg_zeta
+        pos2 = index(scat_name(pos1:), "_")
+        do
+          nn = nn + 1
+          if (pos2 == 0) then ! no more _
+            tokenized(nn) = scat_name(pos1:)
+            exit
+          end if
+          !print*, scat_name(pos1:pos1+pos2-2), nn
+          tokenized(nn) = scat_name(pos1:pos1+pos2-2)
+          pos1 = pos2+pos1
+          pos2 = index(scat_name(pos1:), "_")
+        end do
+        read(tokenized(1),*) rg_kappa
+        read(tokenized(2),*) rg_beta
+        read(tokenized(3),*) rg_gamma
+        read(tokenized(4),*) rg_zeta
+      else
+        !take default values for aggregates of bullet rosettes or columns from Hogan and Westbrook 2014
+        rg_kappa = 0.25d0 !0.19d0 1.00_1.66_0.04
+        rg_beta = 1.0d0   !0.23d0
+        rg_gamma = 1.66d0 !5.d0/3.d0
+        rg_zeta = 0.04 !1.0d0
+      end if
+      
+      call calc_self_similar_rayleigh_gans_rt3(err,& ! change rg_kappa to rg_kappa_list etc. 
+        freq*1d9,&
+        liq_ice,&
+        nbin,&
+        diameter2scat,& ! noidea... but, input, so who cares?
+        delta_d_ds, &
+        num_density,&
+        mass_ds, &
+        as_ratio_list, &
+        canting_list, &
+        refre, &
+        refim, & !positive(?)
+        !rg_kappa, &
+        !rg_beta, &
+        !rg_gamma, &
+        !rg_zeta, &
+        ! use size bin arrays
+        rg_kappa_list, &
+        rg_beta_list, &
+        rg_gamma_list, &
+        rg_zeta_list, &
+        !OUT
+        kext_hydro,&
+        salb_hydro,&
+        back_hydro_ssrg,&
+        nlegen_coef_hydro,&
+        legen_coef1_hydro,&
+        legen_coef2_hydro,&
+        legen_coef3_hydro,&
+        legen_coef4_hydro,&
+        back_spec_ssrg)
+
+    if (allocated(as_ratio_list)) deallocate(as_ratio_list)
+    if (allocated(canting_list)) deallocate(canting_list)
+    if (allocated(rg_zeta_list)) deallocate(rg_zeta_list)
+    if (allocated(rg_gamma_list)) deallocate(rg_gamma_list)
+    if (allocated(rg_kappa_list)) deallocate(rg_kappa_list)
+    if (allocated(rg_beta_list)) deallocate(rg_beta_list)
+
+      ! for back SSRGA HH and VV polarisatuion does not matter and cross-pol is null
+      do i_p=1, radar_npol
+        if ((radar_pol(i_p) == "NN").or.(radar_pol(i_p) == "HH").or.(radar_pol(i_p) == "VV")) then
+          back_spec_dia(i_p,:) = back_spec_ssrg(:)
+          back_hydro(i_p) = back_hydro_ssrg
+        else if ((radar_pol(i_p) == "HV").or.(radar_pol(i_p) == "VH")) then
+          back_spec_dia(i_p,:) = 0.0d0
+          back_hydro(i_p) = 0.0d0
+        else
+          msg = 'do not understand radar_pol(i_p):'//radar_pol(i_p)
+          err = fatal
+          call report(err, msg, nameOfRoutine)
+          errorstatus = err
+          return
+        end if
+      end do
+
+      nlegen_coef = max(nlegen_coef,nlegen_coef_hydro)
+      if (err /= 0) then
+        msg = 'error in calc_self_similar_rayleigh_gans_rt3!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+    else if (scat_name(:5) == "liudb") then
+      read(scat_name(7:8),*) liu_type
+      call dda_db_liu(err,freq, layer_t, liu_type, refre-Im*refim,nbin,&
+        diameter2scat,&
+        delta_d_ds, &
+        num_density,&
+        kext_hydro, salb_hydro, back_hydro_liu,  &
+        nlegen_coef_hydro, legen_coef1_hydro, legen_coef2_hydro, legen_coef3_hydro, &
+        legen_coef4_hydro, back_spec_liu)
+      ! for random oriented particles in Liu DB polarisation does not matter
+      do i_p=1, radar_npol
+        back_spec_dia(i_p,:) = back_spec_liu(:)
+        back_hydro(i_p) = back_hydro_liu
+      end do
+      nlegen_coef = max(nlegen_coef,nlegen_coef_hydro)
+      if (err /= 0) then
+        msg = 'error in dda_db_liu!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+
+    else if (scat_name(:6) == "hongdb") then
+      read(scat_name(8:8),*) hong_type
+      call dda_db_hong(err,freq, layer_t, hong_type, refre-Im*refim,nbin,&
+            diameter2scat,&
+            delta_d_ds, &
+            num_density,&
+            kext_hydro, salb_hydro, back_hydro_hong,  &
+            nlegen_coef_hydro, legen_coef1_hydro, legen_coef2_hydro, legen_coef3_hydro, &
+            legen_coef4_hydro, back_spec_hong)
+      do i_p=1, radar_npol
+        back_spec_dia(i_p,:) = back_spec_hong(:)
+        back_hydro(i_p) = back_hydro_hong
+      end do
+      nlegen_coef = max(nlegen_coef,nlegen_coef_hydro)
+      if (err /= 0) then
+        msg = 'error in dda_db_hong!'
+        call report(err, msg, nameOfRoutine)
+        errorstatus = err
+        return
+      end if
+    
+    else
+      msg = 'do not understand scat_name: '//scat_name
+      errorstatus = fatal
+      call report(errorstatus, msg, nameOfRoutine)
+      return
+    end if
+
+    if (save_psd .eqv. .true.) then
+      ! only for polrization one!
+      out_psd_bscat(i_x,i_y,i_z,i_h,1:nbin) =  back_spec_dia(1,:)/num_density(:)
+    end if
+
+
+    !sum up
+    rt_kexttot(i_z) = rt_kexttot(i_z) + kext_hydro
+    rt_back(i_z,:) = rt_back(i_z,:) + back_hydro(:)
+
+    !sum up rt4 style
+    rt_scattermatrix(i_z,:,:,:,:,:) = rt_scattermatrix(i_z,:,:,:,:,:) + scatter_matrix_hydro
+    rt_extmatrix(i_z,:,:,:,:) = rt_extmatrix(i_z,:,:,:,:) + extinct_matrix_hydro
+    rt_emisvec(i_z,:,:,:) = rt_emisvec(i_z,:,:,:) + emis_vector_hydro
+
+    !sum up rt3 style
+    if (rt_kexttot(i_z) == 0.d0) then 
+      salbedo = 0.d0
+    else 
+      salbedo = salbedo + (salb_hydro*kext_hydro)
+    end if
+
+    if (nlegen_coef > 0) then
+      nlegen_loop: do jj = 1, nlegen_coef
+        legen_coef(1,jj) = legen_coef(1,jj) + (legen_coef1_hydro(jj) * salb_hydro * kext_hydro)
+        legen_coef(2,jj) = legen_coef(2,jj) + (legen_coef2_hydro(jj) * salb_hydro * kext_hydro)
+        legen_coef(3,jj) = legen_coef(3,jj) + (legen_coef3_hydro(jj) * salb_hydro * kext_hydro)
+        legen_coef(4,jj) = legen_coef(4,jj) + (legen_coef4_hydro(jj) * salb_hydro * kext_hydro)
+
+      end do nlegen_loop
+      legen_coef(5,:) = legen_coef(1,:)
+      legen_coef(6,:) = legen_coef(3,:)
+    end if
+
+    !do checks
+    if ((rt_kexttot(i_z) .lt. 0.d0) .or. isnan(rt_kexttot(i_z))) then
+      print*, "rt_kexttot(i_z)",rt_kexttot(i_z)
+      msg = 'rt_kexttot(i_z) smaller than zero or nan!'
+      errorstatus = fatal
+      call report(errorstatus, msg, nameOfRoutine)
+      return
+    end if
+
+    if (ANY(rt_back(i_z,:) .lt. 0.d0) .or. ANY(isnan(rt_back(i_z,:)))) then
+      print*, "rt_back(i_z)",rt_back(i_z,:)
+      msg = 'rt_back(i_z,:) smaller than zero or nan!'
+      errorstatus = fatal
+      call report(errorstatus, msg, nameOfRoutine)
+      return
+    end if
+
+    if (nlegen_coef .gt. maxnleg-1) then
+      print*, "nlegen_coef",nlegen_coef
+      msg = 'nlegen_coef greater maxnleg'
+      errorstatus = fatal
+      call report(errorstatus, msg, nameOfRoutine)
+      return
+    end if
+
+    if ((active) .and. ((radar_mode .eq. "spectrum") .or. (radar_mode .eq. "moments"))) then
+
+      do  i_p= 1, radar_npol
+        call radar_spectrum(err,nbin,d_ds, back_hydro(i_p),  back_spec_dia(i_p,:),layer_t,pressure,freq,&
+          soft_rho_eff,vel_size_mod,mass_ds,area_ds,radar_spec_hydro)
+        if (err /= 0) then
+          msg = 'error in radar_spectrum!'
+          call report(err, msg, nameOfRoutine)
+          errorstatus = err
+          return
+        end if
+        radar_spec(i_p,:) = radar_spec(i_p,:)+ radar_spec_hydro(:)
+      end do
+    end if
+
+    errorstatus = err
+    if (verbose >= 2) call report(info,'End of ', nameOfRoutine)
+    return 
+  end subroutine calc_scatProperties
+
+  subroutine finalize_rt3_scatProperties()
+    use vars_index, only: i_z
+    use vars_rt, only: rt_kexttot
+    implicit none
+
+    salbedo = salbedo / rt_kexttot(i_z)
+    legen_coef(:,:) = legen_coef(:,:) / (salbedo * rt_kexttot(i_z))
+
+    return
+  end subroutine finalize_rt3_scatProperties
+
+  subroutine deallocate_scatProperties()
+    implicit none
+    if (allocated(radar_spec)) deallocate(radar_spec)
+    return
+  end subroutine deallocate_scatProperties
+
+end module scatProperties
