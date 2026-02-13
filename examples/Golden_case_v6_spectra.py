@@ -26,7 +26,6 @@ Write_output=True
 
 
 
-
 #_________LMDZ data___________________
 path = "/home/grzegorc/AWACA/LMDZ/OUT_golden_case_v5"
 nc_file = path + "/TEST-amip-ERA5-LAM.01_20250212_20250218_INS_histinsD17.nc"
@@ -43,42 +42,28 @@ u = nc_data.variables['vitu'][:]
 v = nc_data.variables['vitv'][:]
 w = nc_data.variables['vitw'][:]
 
-print('max rh',np.shape(T))
+#print('max rh',np.shape(T))
 
 p[p<1.]=1. #minimum value accepted by PAMTRA
 z = nc_data.variables['zfull'][:]
 time = nc_data.variables['time_counter'][:]
 
 #_________cosp data subcolumns________
-path="/home/grzegorc/AWACA/COSP/COSPv2.0_lmdz_hillman_precip/driver/run"
-nc_file = path+"/hydro_output_golden_case_v5.nc"
+path="/home/grzegorc/AWACA/COSP/COSPv2.0_lmdz_hillman_precip/driver/data/my_outputs"
+nc_file = path+"/COSP_to_PAMTRA_v6.nc"
 nc_data = Dataset(nc_file, "r")
 
 Qi=nc_data['I_LSCICE'][:][::-1,:,:]
 Ql=nc_data['I_LSCLIQ'][:][::-1,:,:]
 Qr=nc_data['I_LSRAIN'][:][::-1,:,:]
 Qs=nc_data['I_LSSNOW'][:][::-1,:,:]
+
 print("extreme snow", np.max(Qs))
 print("extreme rain", np.max(Qr))
 
-
-##_________quicklook data input_________
-
-#plt.figure('Qi')
-#plt.imshow(np.sum(Qi,1),aspect='auto')
-#plt.colorbar()
-#print("Show Qi")
-#plt.show()
-
-plt.figure('Qs')
-plt.imshow(np.sum(Qs,1),aspect='auto')
-plt.colorbar()
-print("Show Qs")
-#plt.show()
-
-
 ncol=np.shape(Qs)[1]
-
+ncol=np.shape(Qs)[1]
+    
 Qi=np.transpose(Qi, (2, 1, 0))
 Qs=np.transpose(Qs, (2, 1, 0))
 Qr=np.transpose(Qr, (2, 1, 0))
@@ -132,19 +117,26 @@ pamData = dict()
 jsel=420
 isel=340
 
-isel=0#3*24*3
-jsel=-1#6*24*3
 
 
+isel=320
+jsel=620
+
+
+isel=440
+jsel=441
 
 isel=0#3*24*3
 jsel=-1#3*24*3
 
-isel=350
-jsel=600
+#________________Quicklook for data before running__________________
+plt.figure('Qs quicklook')
+plt.imshow(np.mean(Qs[isel:jsel,:,::-1],1).T*1000,aspect='auto',cmap="jet",vmin=0.01,vmax=1)
+plt.colorbar()
+print("Show Qs")
+plt.show()
 
-#isel=440
-#jsel=441
+
 
 plt.figure('Profiles',figsize=(12,8))
 plt.subplot(131)
@@ -192,6 +184,25 @@ print('keys pamdata',pamData.keys())
 pamData["wind_w"] =-w[isel:jsel,:,:]#/T[isel:jsel,:,:]*0.1
 #pamData["wind_w"] = T[isel:jsel,:,:]/T[isel:jsel,:,:]*0.001
 
+#_______ssrga scattering
+#kappa_beta_gamma_zeta
+
+###Leinonen et al. (2018) 0.2 kg m2
+#AR_snow=0.63
+#ssrg_coefs = [0.2,7.,3.5,0.03]
+
+#Billault-Roux et al. (2023) from Ori et al. (2020)
+#AR_snow=0.82
+#ssrg_coefs = [0.23,9.,1.66,1]
+
+#Nowell et al. (2013) aggregation model
+AR_snow=0.82
+ssrg_coefs = [0.25,0.21,2.33,0.13]
+
+#Westbrook et al. (2004) aggregation model
+#AR_snow=0.83
+#ssrg_coefs = [0.09,0.68,2.0,0.23]
+
 
 
 #________hydrometeor input________
@@ -201,7 +212,7 @@ r_liq=12e-6
 Rho_liq=1000.
 
 N_liq=(q_hydro[isel:jsel,:,:,id_liq]*Rho_air[isel:jsel,:,:])/(Rho_liq*4/3*np.pi*r_liq**3)
-pam.df.addHydrometeor(("liq", -99., 1, Rho_liq, -99., -99., -99., -99. ,3,   1, "mono", -99., -99., -99., -99.,2*r_liq, -99.,"mie-sphere", "khvorostyanov01_drops", -99.))
+pam.df.addHydrometeor(("liq", 1., 1, Rho_liq, -99., -99., -99., -99. , 3, 1, "mono", -99., -99., -99., -99.,2*r_liq, -99.,"mie-sphere", "khvorostyanov01_drops", 0.))
 
 ##___Rain_properties___
 
@@ -209,16 +220,22 @@ r_rain=0.0005
 rain_fallspeed=4.
 Rho_rain=1000.
 N_rain=q_hydro[isel:jsel,:,:,id_rain]/(Rho_rain*4/3*np.pi*r_rain**3)
-pam.df.addHydrometeor(("rain",-99.,  1 , Rho_rain , -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_rain,-99.0,"mie-sphere","lmdz_rain",0.0))
+pam.df.addHydrometeor(("rain",1.,  1 , Rho_rain , -99., -99., -99., -99. , 3, 1, "mono",-99.0, -99.0, -99.0, -99.0,2*r_rain,-99.0,"mie-sphere","lmdz_rain",0.0))
 
 ##___Snow_properties___
-C_snow=1.0
 r_snow=0.001
 snow_fallspeed=1.
 Rho_snow = 1.e3 * 0.178 * ( r_snow * 2 * 1000. )**(-0.922)
 N_snow=(q_hydro[isel:jsel,:,:,id_snow]*Rho_air[isel:jsel,:,:])/(Rho_snow*4/3*np.pi*r_snow**3)
 
-pam.df.addHydrometeor(("snow",C_snow, -1 , Rho_snow, -99., -99., np.pi/4., 2. ,  3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans","lmdz_snow",0.0))
+#pam.df.addHydrometeor(("snow",AR_snow, -1 , Rho_snow, -99., -99., np.pi/4., 2. ,  3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans_%.3f_%.3f_%.3f_%.3f"%tuple(ssrg_coefs),"lmdz_snow",0.0))
+#pam.df.addHydrometeor(("snow",AR_snow, -1 , Rho_snow, -99., -99., np.pi/4., 2. ,  3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans_%.3f_%.3f"%tuple(ssrg_coefs),"lmdz_snow",0.0)) #for BR23 only
+
+AR_snow=0.83
+pam.df.addHydrometeor(("snow",AR_snow, -1 , Rho_snow, -99., -99., np.pi/4., 2. ,  3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans","lmdz_snow",0.0))
+
+
+
 #pam.df.addHydrometeor(("snow",C_snow, -1 , Rho_snow, -99., -99., np.pi/4., 2. ,  3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans","heymsfield10_particles",0.0))
 
 #pam.df.addHydrometeor(("snow",C_snow, -1 , Rho_snow, 130., 3.0 ,0.684, 2. ,  3 ,1,"mono_cosmo_ice",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans","heymsfield10_particles",0.0)) #gives strange things
@@ -226,7 +243,6 @@ pam.df.addHydrometeor(("snow",C_snow, -1 , Rho_snow, -99., -99., np.pi/4., 2. , 
 print(pam.df)
 ##___Cirrus_properties___
 
-C_ice=1.
 Rho_ice=917.
 AR_ice=1.#
 r_ice=50e-6#((q_hydro[isel:jsel,:,:,id_cir]*Rho_air[isel:jsel,:,:])/(N_cir*Rho_cir*4/3*np.pi+1e-30))**(1/3)
@@ -234,28 +250,22 @@ N_ice=(q_hydro[isel:jsel,:,:,id_ice]*Rho_air[isel:jsel,:,:])/(Rho_ice*4/3*np.pi*
 
 
 #pam.df.addHydrometeor(("ice", C_ice, -1 , Rho_ice,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "ss-rayleigh-gans", "heymsfield10_particles",0.0))
-pam.df.addHydrometeor(("ice", C_ice, -1 , Rho_ice,  -99,-99 ,np.pi/4, 2.  , 3 ,1, "mono", -99., -99., -99., -99., 2*r_ice, -99., "ss-rayleigh-gans", "heymsfield10_particles",0.0))
+pam.df.addHydrometeor(("ice", AR_ice, -1 , Rho_ice,  -99,-99 ,np.pi/4, 2.  , 3 ,1, "mono", -99., -99., -99., -99., 2*r_ice, -99., "ss-rayleigh-gans", "heymsfield10_particles",0.0))
 pam.createProfile(**pamData)
 
-#    RG_BETA  = 0.22
 #    RG_KAPPA = 2.52
 #    RG_GAMMA = 2.36
 #    RG_ZETA  = 0.049
-
-#"   pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_snow,:]  = RG_BETA
+#pam.df["rg_beta_ds"][:,:,:,id_snow,:]  = RG_BETA
 #   pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_snow,:] = RG_KAPPA
 #    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_snow,:] = RG_GAMMA
 #    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_snow,:]  = RG_ZETA
 
-
 #__________namelist___________
 
-#pam.nmlSet['tmatrix_db'] = 'file'
-#pam.nmlSet['tmatrix_db_path'] = 'example_db/'
 pam.nmlSet["randomseed"] = 10
 pam.nmlSet["passive"] = False
 #pam.nmlSet['radar_allow_negative_dD_dU'] = True
-
 pam.nmlSet['radar_polarisation']='HH'
 #new for doppler
 
@@ -268,7 +278,7 @@ if Run_spectra==True:
     pam.nmlSet["conserve_mass_rescale_dsd"] = False
     pam.nmlSet["radar_use_hildebrand"] = True
 #pam.nmlSet["radar_noise_distance_factor"] = 0#-6#0.5
-    pam.nmlSet["radar_save_noise_corrected_spectra"]=  True# False
+    #pam.nmlSet["radar_save_noise_corrected_spectra"]=  True# False
     pam.nmlSet["radar_nfft"]=int(256*2)
     pam.nmlSet["radar_use_wider_peak"]=True
 #pam.nmlSet['radar_nPeaks']=1.
@@ -280,11 +290,6 @@ if Run_spectra==True:
 pam.nmlSet['radar_max_v']= 12.
 pam.nmlSet['radar_min_v']= -12.
 #pam.nmlSet["save_psd"] = True
-
-#__________scattering method____________
-#pam.df.data["scat_name"][:] = "tmatrix"
-#pam.df.data["scat_name"][:] = "ssrga"
-#pam.df.data["as_ratio"][:] = 1.0
 
 pam.set["pyVerbose"] = 2
 
@@ -302,19 +307,19 @@ if Run_pamtra==True:
 
     print("Run end")
     print("Pam.r keys",pam.r.keys())
-    print('Moments', pam.r['radar_moments'])
-    print('Moments', np.shape(pam.r['radar_moments']))
-    print('SNR', pam.r['radar_snr'])
-    print('radarpol', pam.r["radar_pol"])
-    print('radar_n', pam.r["psd_n"])
-    print('radar_area', pam.r["psd_area"])
-    print('radar_d', pam.r["psd_d"])
-    print('radar_vel', pam.r["radar_vel"],np.shape(pam.r["radar_vel"][0]),len(pam.r["radar_vel"][0]))
+    #print('Moments', pam.r['radar_moments'])
+    #print('Moments', np.shape(pam.r['radar_moments']))
+    #print('SNR', pam.r['radar_snr'])
+    #print('radarpol', pam.r["radar_pol"])
+    #print('radar_n', pam.r["psd_n"])
+    #print('radar_area', pam.r["psd_area"])
+    #print('radar_d', pam.r["psd_d"])
+    #print('radar_vel', pam.r["radar_vel"],np.shape(pam.r["radar_vel"][0]),len(pam.r["radar_vel"][0]))
 
 
 
     print("SHAPE",np.shape(pam.r["Ze"]))
-    print("MAX",np.max(pam.r["Ze"]))
+    print("MAX dBZ",np.max(pam.r["Ze"]))
 
     plt.figure('Quicklook reflectivity')
     plt.imshow(pam.r["Ze"][:,0,:,0,0,0].T,aspect='auto',vmin=-30,vmax=30,cmap="jet")
@@ -335,9 +340,9 @@ if Run_pamtra==True:
     plt.ylim(0,10)
 
     if Run_spectra==True:
-        print('shape',np.shape(pam.r["radar_vel"]),np.shape(pam.r["radar_spectra"]))
-        print("max min vel",np.min(pam.r["radar_vel"][0]),np.max(pam.r["radar_vel"][0]))
-        print("max dBZ",np.max(pam.r["radar_spectra"][:]))
+        print('Shape Spectra',np.shape(pam.r["radar_vel"]),np.shape(pam.r["radar_spectra"]))
+        #print("max min vel",np.min(pam.r["radar_vel"][0]),np.max(pam.r["radar_vel"][0]))
+        #print("max dBZ",np.max(pam.r["radar_spectra"][:]))
 
 
 
@@ -391,7 +396,8 @@ if Run_pamtra==True:
 
 # Output NetCDF file path
 #output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_cosp_final_no_fullspec.nc"
-output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_golden_case_D17_v5_ssrga.nc"
+output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_golden_case_D17_v6_ssrga_spectra_Ka.nc"
+#output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Profile_ssrga_default2_w.nc"
 #output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/test.nc"#Ouput_golden_case_D17_v2_new_bin_wateronly.nc"
 
 if Write_output==True:
@@ -423,9 +429,11 @@ if Write_output==True:
         nc_out.createVariable("N_snow", "f4", ("time", "col", "level"))[:] = N_snow
         nc_out.createVariable("N_rain", "f4", ("time", "col", "level"))[:] = N_rain
         nc_out.createVariable("Ze", "f4", ("time", "col", "level"))[:] = pam.r["Ze"][:,:,:,0,0,0]
-        nc_out.createVariable("MDV", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,0]
-        nc_out.createVariable("Sigma", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,1]
-        nc_out.createVariable("Skewness", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,2]
-        nc_out.createVariable("Kurtosis", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,3]
-        nc_out.createVariable("Spectra", "f4", ("time", "col", "level","bins"))[:] = pam.r["radar_spectra"][:,:,:,0,0,:]
+
+        if Run_spectra==True: # only for spectra radar_mode
+            nc_out.createVariable("MDV", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,0]
+            nc_out.createVariable("Sigma", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,1]
+            nc_out.createVariable("Skewness", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,2]
+            nc_out.createVariable("Kurtosis", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,3]
+            nc_out.createVariable("Spectra", "f4", ("time", "col", "level","bins"))[:] = pam.r["radar_spectra"][:,:,:,0,0,:]
         print("PAMTRA output saved as NetCDF file  ",output_file)

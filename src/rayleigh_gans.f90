@@ -128,6 +128,7 @@ module rayleigh_gans
     call assert_false(err,(any(isnan(mass)) .or. any(mass < 0.d0)), "nan or negative mass")
     call assert_false(err,any(isnan(as_ratio)) .or. any(as_ratio <= 0.d0), "nan or negative as_ratio")
     call assert_false(err,any(isnan(canting)) .or. any(canting < 0.d0), "nan or negative canting")
+    print *, "errrrrrrrrrrrrrrrrrrrrrr", err
     if (err > 0) then
       errorstatus = fatal
       msg = "assertation error"
@@ -189,6 +190,7 @@ module rayleigh_gans
       call calc_single_ssrga(err, quad, nummu, freq, refre, refim, dmax(ir), nstokes, &
                              as_ratio(ir), beta, azimuth_num, azimuth0_num, &
                              scatter_matrix_part, extinct_matrix_part, emis_vector_part, Sback_part)
+               
       if (err /= 0) then
         msg = 'error in calc_single_ssrga!'
         call report(err, msg, nameOfRoutine)
@@ -231,6 +233,9 @@ module rayleigh_gans
         ! print*,'Sback_part ',Sback_part(1,1), Sback_part(1,2), Sback_part(2,1), Sback_part(2,2)
         ! print*, radar_pol(i_p), back_spec(i_p,ir)
       end do ! radar_npol
+      !print *, "SCATTER MAT", any(isnan(scatter_matrix))  ! no nan
+      !print *, "SCATTER MATpart",  any(isnan(scatter_matrix_part)) ! yes nan
+      !print *, "EMIS_VECT_part",  any(isnan(emis_vector_part)) ! yes nan
       scatter_matrix = scatter_matrix + scatter_matrix_part * ndens_eff * del_d_eff
       extinct_matrix = extinct_matrix + extinct_matrix_part * ndens_eff * del_d_eff
       emis_vector = emis_vector + emis_vector_part * ndens_eff * del_d_eff
@@ -307,6 +312,8 @@ module rayleigh_gans
     integer(kind=long) :: err = 0
     character(len=80) :: msg
     character(len=30) :: nameOfRoutine = 'ssrga_calc_single'
+
+
 
     if (verbose >= 3) call report(info,'Start of ', nameOfRoutine) 
     if (verbose >= 5) print*, "quad,qua_num,frequency,ref_index,dmax, nstokes,as_ratio, beta, azimuth_num, azimuth0_num"
@@ -386,6 +393,7 @@ module rayleigh_gans
             phi0_weights = 1.d0/360.d0*(360.d0/azimuth0_num)
             !        if(azimuth0_num.eq.1)phi0 = 0.0
             scatt_matrix_tmp1_11 = 0.d0
+              !print *, "SCATTER MAT tmp part3",  isnan(scatt_matrix_tmp1_11) !y/n
             scatt_matrix_tmp1_12 = 0.d0
 
             scatt_matrix_tmp1_21 = 0.d0
@@ -398,8 +406,10 @@ module rayleigh_gans
               ! Here I should put the call to ssrga and convert the ssrga output to tmatrix reference frame and Mishenko notation
               !CALL tmatrix_AMPL(NMAX,dble(LAM),THET0,THET,PHI0,PHI,ALPHA,BETA,&
               !                  S11,S12,S21,S22)
+              !print *, "SCATTER MAT tmp part3",  s11,wave_num
 
               s11 = s11*wave_num
+              !print *, "SCATTER MAT tmp part4",  s11
               s12 = s12*wave_num
               s21 = s21*wave_num
               s22 = s22*wave_num
@@ -414,8 +424,13 @@ module rayleigh_gans
                 Sback = fact_sca*Sback
                 ! print*,"backscattering ", Sback, fact_sca, phi_weights
               end if
+
               scatt_matrix_tmp1_11 = scatt_matrix_tmp1_11 + (fact_sca*&
                   (s11*dconjg(s11)+s12*dconjg(s12)+s21*dconjg(s21)+s22*dconjg(s22)))*phi_weights
+
+              !print *, "SCATTER MAT tmp part5", fact_sca, s11,s12,s21,s22,dconjg(s11),dconjg(s12),dconjg(s21),dconjg(s22),phi_weights !y/n
+              !print *, "SCATTER MAT tmp part4",  isnan(scatt_matrix_tmp1_11),s12!,s12,s21,s22 !y/n
+              !print *, "SCATTER MAT tmp part5",  isnan(scatt_matrix_tmp1_11) !y/n
             
               scatt_matrix_tmp1_12 = scatt_matrix_tmp1_12 + (fact_sca*&
                   (s11*dconjg(s11)-s12*dconjg(s12)+s21*dconjg(s21)-s22*dconjg(s22)))*phi_weights
@@ -433,11 +448,18 @@ module rayleigh_gans
                 extinct_matrix(2,2,jj) = extinct_matrix(2,2,jj)+phi0_weights*(-real((s11 + s22)*fact_ext))
               end if
             1245 continue   ! phi
+            !print *, "SCATTER MATpart4",  any(isnan(scatter_matrix)) !y/n
 
             scatter_matrix(1,ll,1,jj,kkk1) = scatter_matrix(1,ll,1,jj,kkk1) + scatt_matrix_tmp1_11*phi0_weights
             scatter_matrix(1,ll,2,jj,kkk1) = scatter_matrix(1,ll,2,jj,kkk1) + scatt_matrix_tmp1_12*phi0_weights
             scatter_matrix(2,ll,1,jj,kkk1) = scatter_matrix(2,ll,1,jj,kkk1) + scatt_matrix_tmp1_21*phi0_weights
             scatter_matrix(2,ll,2,jj,kkk1) = scatter_matrix(2,ll,2,jj,kkk1) + scatt_matrix_tmp1_22*phi0_weights
+            !print *, "SCATTER MATpart5",  any(isnan(scatter_matrix)) !y
+            !print *, "TMP MATpart6",  isnan(scatt_matrix_tmp1_11) !y
+            !print *, "TMP MATpart5",  isnan(scatt_matrix_tmp1_12) !y
+            !print *, "TMP MATpart5",  isnan(scatt_matrix_tmp1_21) !y
+            !print *, "TMP MATpart5",  isnan(scatt_matrix_tmp1_22) !y
+            !print *, "WEIGHTpart5",  isnan(phi0_weights) !n
 
           1244 continue  ! phi0
 
@@ -453,7 +475,10 @@ module rayleigh_gans
       emis_vector(2,jj) = extinct_matrix(1,2,jj) - sum(emis_vector_tmp1_12)
 
     1241 continue ! thet0 jj
-    
+    !print *, "SCATTER MATpart3",  any(isnan(scatter_matrix)) !? yes nan
+    !print *, "SEST MATpart3",  any(isnan(extinct_matrix)) !? no nan
+
+
     errorstatus = err
     if (verbose >= 3) call report(info,'End of ', nameOfRoutine) 
     return
@@ -740,7 +765,7 @@ module rayleigh_gans
         call calc_shape_factor(x, rg_kappa(ii), rg_beta(ii), rg_gamma(ii), rg_zeta(ii), shape_fact)
         s22 = -im * 3. * wave_num**3 * K * volume * shape_fact**0.5d0 / (4.d0*pi) ! here I have multiplied by -j*wave_num because of mie_sphere convention
         s11 = s22*cos(scat_angle_rad)
-        !print*,"s11 ",s11,"    s22 ",s22
+        print*,"s11 ",s11,"    s22 ",s22
         sump1(ia) = sump1(ia) + 0.5*(abs(s11)**2 + abs(s22)**2)*ndens_eff*del_d_eff
         sump2(ia) = sump2(ia) + 0.5*(abs(s11)**2 - abs(s22)**2)*ndens_eff*del_d_eff
         sump3(ia) = sump3(ia) + dreal(dconjg(s11)*s22)*ndens_eff*del_d_eff
@@ -1049,7 +1074,9 @@ module rayleigh_gans
     ! back_spec(:) = 0.d0
     ! sumqback = 0.d0
     
+    print *, 'nbins', nbins
     do ii = 1, nbins
+      print *, 'nbins loop', nbins
 
       if (canting(ii) == 0) then
         d_wave = diameter(ii) * as_ratio(ii)
@@ -1061,6 +1088,7 @@ module rayleigh_gans
       volume = mass(ii) / rho_ice 
 
       ! Loop over scattering angles
+      print *, 'nummu', nummu
       do ia1 = 1, nummu
         scattering_integral_11 = 0.
         scattering_integral_12 = 0.
@@ -1088,6 +1116,7 @@ module rayleigh_gans
           s22 = 3./8. * wave_num**2 * K * volume * (term1 + rg_beta*term2)**0.5
           s22 = s22*wave_num
           s11 = s22*cos(scat_angle_rad) ! 
+          print*,"s11 ",s11,"    s22 ",s22
           !print*,scat_angle_rad,'  ',s11,' ssrg ',s22
           ! Put the terms together
           scatter_matrix_tmp(1,ia2,1,ia1) = (s11*dconjg(s11)+s22*dconjg(s22))*2.0d0*pi*fact_sca

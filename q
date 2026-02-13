@@ -106,6 +106,9 @@ isel=340
 isel=0#3*24*3
 jsel=-1#6*24*3
 
+jsel=441
+isel=440
+
 pamData["lon"] = lon[isel:jsel,:]
 pamData["lat"] = lat[isel:jsel,:]
 pamData["temp"] = T[isel:jsel,:,:]
@@ -113,6 +116,8 @@ pamData["relhum"] = RH[isel:jsel,:,:]
 pamData["hgt"] = z[isel:jsel,:,:]
 pamData["press"] = p[isel:jsel,:,:]
 pamData["hydro_q"] = q_hydro[isel:jsel,:,:]
+
+
 
 #________hydrometeor input________
 ##___Liq_properties
@@ -139,7 +144,7 @@ snow_fallspeed=1.
 Rho_snow = 1.e3 * 0.178 * ( r_snow * 2 * 1000. )**(-0.922)
 N_snow=(q_hydro[isel:jsel,:,:,id_snow]*Rho_air[isel:jsel,:,:])/(Rho_snow*4/3*np.pi*r_snow**3)
 
-pam.df.addHydrometeor(("snow",-99., -1 , Rho_snow, -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"tmatrix",snow_fallspeed,0.0))
+pam.df.addHydrometeor(("snow",-99., -1 , Rho_snow, -99., -99.,-99. , -99., 3 ,1,"exp",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ssrga","heymsfield10_particles",0.0))
 
 ##___Cirrus_properties___
 
@@ -149,7 +154,7 @@ AR_ice=1.#
 r_ice=50e-6#((q_hydro[isel:jsel,:,:,id_cir]*Rho_air[isel:jsel,:,:])/(N_cir*Rho_cir*4/3*np.pi+1e-30))**(1/3)
 N_ice=(q_hydro[isel:jsel,:,:,id_ice]*Rho_air[isel:jsel,:,:])/(Rho_ice*4/3*np.pi*r_ice**3)
 
-pam.df.addHydrometeor(("ice", C_ice, -1 , Rho_ice,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "tmatrix", "heymsfield10_particles",0.0))
+pam.df.addHydrometeor(("ice", C_ice, -1 , Rho_ice,  130., 3.0 ,0.684, 2.  , 3 ,1, "mono_cosmo_ice", -99., -99., -99., -99., 2*r_ice, -99., "mie-sphere", "heymsfield10_particles",0.0))
 
 pam.createProfile(**pamData)
 
@@ -197,7 +202,7 @@ if FULL_SPECTRA==True:
     pam.df.dataFullSpec["d_bound_ds"][:,:,:,id_snow,:]=[r_snow,4*r_snow]
     pam.df.dataFullSpec["n_ds"][:,:,:,id_snow,0]=N_snow
     pam.df.dataFullSpec["mass_ds"][:,:,:,id_snow,0]=q_hydro[isel:jsel,:,:,id_snow]
-    pam.df.dataFullSpec["area_ds"][:,:,:,id_snow,:]=-99 #np.pi*r_snow**2
+    pam.df.dataFullSpec["area_ds"][:,:,:,id_snow,:]=np.pi*r_snow**2
     pam.df.dataFullSpec["as_ratio"][:,:,:,id_snow,:]=AR_snow
     pam.df.dataFullSpec["canting"][:,:,:,id_snow,:]=0.
     pam.df.dataFullSpec["fallvelocity"][:,:,:,id_snow,:]=snow_fallspeed
@@ -205,14 +210,22 @@ if FULL_SPECTRA==True:
     pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_snow,:]=-99.
     pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_snow,:]=-99.
     pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_snow,:]=-99.
+    RG_BETA  = 0.9
+    RG_KAPPA = 0.18
+    RG_GAMMA = 1.9
+    RG_ZETA  = 0.25
 
+    pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_snow,:]  = RG_BETA
+    pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_snow,:] = RG_KAPPA
+    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_snow,:] = RG_GAMMA
+    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_snow,:]  = RG_ZETA
     ##___ICE
     pam.df.dataFullSpec["rho_ds"][:,:,:,id_ice,:]=Rho_ice
     pam.df.dataFullSpec["d_ds"][:,:,:,id_ice,0]=2*r_ice
     pam.df.dataFullSpec["d_bound_ds"][:,:,:,id_ice,:]=[0,4]#4*np.max(r_cir)]
     pam.df.dataFullSpec["n_ds"][:,:,:,id_ice,0]=N_ice
     pam.df.dataFullSpec["mass_ds"][:,:,:,id_ice,0]=q_hydro[isel:jsel,:,:,id_ice]
-    pam.df.dataFullSpec["area_ds"][:,:,:,id_ice,:]=-99 #np.pi*r_cir**2
+    pam.df.dataFullSpec["area_ds"][:,:,:,id_ice,:]=np.pi*r_ice**2
     pam.df.dataFullSpec["as_ratio"][:,:,:,id_ice,:]=AR_ice
     pam.df.dataFullSpec["canting"][:,:,:,id_ice,:]=0.
     pam.df.dataFullSpec["fallvelocity"][:,:,:,id_ice,:]=0.#snow_fallspeed
@@ -225,13 +238,14 @@ if FULL_SPECTRA==True:
 
 #__________namelist___________
 
-pam.nmlSet['tmatrix_db'] = 'file'
-pam.nmlSet['tmatrix_db_path'] = 'example_db/'
+#pam.nmlSet['tmatrix_db'] = 'file'
+#pam.nmlSet['tmatrix_db_path'] = 'example_db/'
 pam.nmlSet["passive"] = False
 
 #__________scattering method____________
-pam.df.data["scat_name"][:] = "tmatrix"
-pam.df.data["as_ratio"][:] = 1.0
+#pam.df.data["scat_name"][:] = "tmatrix"
+#pam.df.data["scat_name"][:] = "ssrga"
+#pam.df.data["as_ratio"][:] = 1.0
 
 pam.set["pyVerbose"] = 1
 Run_pamtra=False
@@ -239,8 +253,8 @@ Run_pamtra=True#False
 if Run_pamtra==True:
     print("Start to run")
     pam.runParallelPamtra(35.0,
-                      pp_deltaX=2,    # 2 profiles in X per worker
-                      pp_deltaY=2,    # 1 profile in Y per worker
+                      pp_deltaX=4,    # 2 profiles in X per worker
+                      pp_deltaY=4,    # 1 profile in Y per worker
                       pp_deltaF=1,    # 1 frequency per worker
                       pp_local_workers="auto")  # detect CPU cores
     print("SHAPE",np.shape(pam.r["Ze"]))
@@ -254,7 +268,7 @@ if Run_pamtra==True:
 
 # Output NetCDF file path
 #output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_cosp_final_no_fullspec.nc"
-output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_golden_case_D17_v5.nc"
+output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_golden_case_D17_v5_ssrga.nc"
 #output_file = "/home/grzegorc/AWACA/PAMTRA/pamtra/test.nc"#Ouput_golden_case_D17_v2_new_bin_wateronly.nc"
 with Dataset(output_file, "w", format="NETCDF4") as nc_out:
 

@@ -21,8 +21,8 @@ Run_parall=True
 Run_spectra=False
 Run_spectra=True
 
-Write_output=False
 Write_output=True
+Write_output=False
 
 
 
@@ -70,10 +70,10 @@ print("extreme rain", np.max(Qr))
 #print("Show Qi")
 #plt.show()
 
-plt.figure('Qs')
-plt.imshow(np.sum(Qs,1),aspect='auto')
-plt.colorbar()
-print("Show Qs")
+#plt.figure('Qs')
+#plt.imshow(np.sum(Qs,1),aspect='auto')
+#plt.colorbar()
+#print("Show Qs")
 #plt.show()
 
 
@@ -140,11 +140,11 @@ jsel=-1#6*24*3
 isel=0#3*24*3
 jsel=-1#3*24*3
 
-isel=350
+isel=550
 jsel=600
 
-#isel=440
-#jsel=441
+isel=440
+jsel=441
 
 plt.figure('Profiles',figsize=(12,8))
 plt.subplot(131)
@@ -183,11 +183,10 @@ pamData["relhum"] = RH[isel:jsel,:,:]
 pamData["hgt"] = z[isel:jsel,:,:]
 pamData["press"] = p[isel:jsel,:,:]
 pamData["hydro_q"] = q_hydro[isel:jsel,:,:]
-pamData["airturb"] = T[isel:jsel,:,:]/T[isel:jsel,:,:]*0.01
 tke[tke>3]=3
 tke[tke<0.01]=0.01
 pamData["airturb"] = tke[isel:jsel,:,:]#/T[isel:jsel,:,:]*0.011
-#pamData["airturb"] = T[isel:jsel,:,:]/T[isel:jsel,:,:]*0.11
+#pamData["airturb"] = T[isel:jsel,:,:]/T[isel:jsel,:,:]*0.1
 print('keys pamdata',pamData.keys())
 pamData["wind_w"] =-w[isel:jsel,:,:]#/T[isel:jsel,:,:]*0.1
 #pamData["wind_w"] = T[isel:jsel,:,:]/T[isel:jsel,:,:]*0.001
@@ -268,13 +267,14 @@ if Run_spectra==True:
     pam.nmlSet["conserve_mass_rescale_dsd"] = False
     pam.nmlSet["radar_use_hildebrand"] = True
 #pam.nmlSet["radar_noise_distance_factor"] = 0#-6#0.5
-    pam.nmlSet["radar_save_noise_corrected_spectra"]=  True# False
-    pam.nmlSet["radar_nfft"]=int(256*2)
+    pam.nmlSet["radar_save_noise_corrected_spectra"]=   False
+    pam.nmlSet["radar_nfft"]=int(500)
+    #pam.nmlSet["radar_nfft"]=int(256*2)
     pam.nmlSet["radar_use_wider_peak"]=True
 #pam.nmlSet['radar_nPeaks']=1.
 #pam.nmlSet['radar_peak_min_bins']=-2.
 #pam.nmlSet['radar_pnoise0']= -38.23
-    #pam.nmlSet["radar_smooth_spectrum"]=True
+    pam.nmlSet["radar_smooth_spectrum"]=True
 #pam.nmlSet["radar_use_wider_peak"] = True
 #pam.nmlSet["radar_noise_distance_factor"] = 0.#-2
 pam.nmlSet['radar_max_v']= 12.
@@ -293,8 +293,8 @@ if Run_pamtra==True:
 
     if Run_parall==True:
         pam.runParallelPamtra(35.0,
-                      pp_deltaX=4,    # 2 profiles in X per worker
-                      pp_deltaY=4,    # 1 profile in Y per worker
+                      pp_deltaX=1,    # 2 profiles in X per worker
+                      pp_deltaY=1,    # 1 profile in Y per worker
                       pp_deltaF=1,    # 1 frequency per worker
                       pp_local_workers="auto")  # detect CPU cores
     else:
@@ -309,7 +309,8 @@ if Run_pamtra==True:
     print('radar_n', pam.r["psd_n"])
     print('radar_area', pam.r["psd_area"])
     print('radar_d', pam.r["psd_d"])
-    print('radar_vel', pam.r["radar_vel"],np.shape(pam.r["radar_vel"][0]),len(pam.r["radar_vel"][0]))
+    print('radar_vel', pam.r["radar_vel"])
+    print('radar_vel', pam.r["radar_spectra"])
 
 
 
@@ -336,7 +337,7 @@ if Run_pamtra==True:
 
     if Run_spectra==True:
         print('shape',np.shape(pam.r["radar_vel"]),np.shape(pam.r["radar_spectra"]))
-        print("max min vel",np.min(pam.r["radar_vel"][0]),np.max(pam.r["radar_vel"][0]))
+        print("max min vel",np.min(pam.r["radar_vel"][:]),np.max(pam.r["radar_vel"][:]))
         print("max dBZ",np.max(pam.r["radar_spectra"][:]))
 
 
@@ -402,14 +403,13 @@ if Write_output==True:
         nc_out.createDimension("col", ncol)
         nc_out.createDimension("level", T.shape[2])
         nc_out.createDimension("hydro", 4)
-        nc_out.createDimension("bins", len(pam.r["radar_vel"][0]))
 
     # Variables simples
         nc_out.createVariable("time", "f8", ("time",))[:] = time[isel:jsel]
         nc_out.createVariable("col", "i4", ("col",))[:] = np.arange(ncol)
         nc_out.createVariable("level", "i4", ("level",))[:] = Alt
         nc_out.createVariable("hydro", "i4", ("hydro",))[:] = np.arange(4)
-        nc_out.createVariable("bins", "i4", ("bins",))[:] = pam.r["radar_vel"][0]
+
     # Écriture des champs
         nc_out.createVariable("lon", "f4", ("time", "col"))[:] = pamData["lon"]
         nc_out.createVariable("lat", "f4", ("time", "col"))[:] = pamData["lat"]
@@ -423,9 +423,4 @@ if Write_output==True:
         nc_out.createVariable("N_snow", "f4", ("time", "col", "level"))[:] = N_snow
         nc_out.createVariable("N_rain", "f4", ("time", "col", "level"))[:] = N_rain
         nc_out.createVariable("Ze", "f4", ("time", "col", "level"))[:] = pam.r["Ze"][:,:,:,0,0,0]
-        nc_out.createVariable("MDV", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,0]
-        nc_out.createVariable("Sigma", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,1]
-        nc_out.createVariable("Skewness", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,2]
-        nc_out.createVariable("Kurtosis", "f4", ("time", "col", "level"))[:] = pam.r["radar_moments"][:,:,:,0,0,0,3]
-        nc_out.createVariable("Spectra", "f4", ("time", "col", "level","bins"))[:] = pam.r["radar_spectra"][:,:,:,0,0,:]
         print("PAMTRA output saved as NetCDF file  ",output_file)

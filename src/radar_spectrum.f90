@@ -182,6 +182,20 @@ subroutine radar_spectrum(&
           call dia2vel_khvorostyanov01_spheres(err,nbins,diameter_spec_cp,rho,nu,rho_particle,vel_spec)
         else if (vel_size_mod .eq. "rogers_drops") then
           call dia2vel_rogers_drops(err,nbins,diameter_spec_cp,rho,vel_spec)
+
+
+
+!_____________added by PG for lmdz___________________
+        else if (vel_size_mod .eq. "lmdz_snow") then
+          call dia2vel_lmdz_snow(err,nbins,vel_spec,diameter_spec_cp)
+          !print *, 'select snow', vel_size_mod
+
+        else if (vel_size_mod .eq. "lmdz_rain") then
+          call dia2vel_lmdz_rain(err,nbins,vel_spec,diameter_spec_cp)
+!_______________________________________________
+
+
+
         else if (vel_size_mod == "heymsfield10_particles") then
           k_factor = 0.5d0
           call dia2vel_heymsfield10_particles(err,nbins,diameter_spec_cp,rho,nu,&
@@ -257,7 +271,8 @@ subroutine radar_spectrum(&
     !move from dimension to velocity!
     do jj=1,nbins-1
         dD_dU(jj) = (diameter_spec_cp(jj+1)-diameter_spec_cp(jj))/(vel_spec(jj+1)-vel_spec(jj)) ![m/(m/s)]
-!         is all particles fall with the same velocity, dD_dU gets infinitive!
+        !print *, 'dUUUUU', diameter_spec_cp(jj+1),diameter_spec_cp(jj), vel_spec(jj+1),vel_spec(jj)
+        !         is all particles fall with the same velocity, dD_dU gets infinitive!
         if (abs(dD_dU(jj)) .ge. huge(dD_dU(jj))) then
 !             print*, jj,(diameter_spec_cp(jj+1)-diameter_spec_cp(jj)), (vel_spec(jj+1)-vel_spec(jj))
 !             errorstatus = fatal

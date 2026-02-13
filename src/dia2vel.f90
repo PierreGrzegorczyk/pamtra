@@ -20,8 +20,69 @@ module dia2vel
     !     Documenting Exchangeable Fortran 90 Code". 
     !
 
-
   contains
+
+
+  subroutine dia2vel_lmdz_snow(errorstatus,nDia,velSpec,diaSpec_SI)            !out
+  !define the snow fall speed for lmdz monodispersed particles
+      use kinds
+      use constants
+      use report_module
+      implicit none
+
+      real :: vsnow_lmdz
+      integer, intent(in) :: nDia
+      real(kind=dbl), intent(in), dimension(ndia)::diaSpec_SI
+      integer(kind=long), intent(out) :: errorstatus
+      integer(kind=long) :: err = 0
+      character(len=33) :: nameOfRoutine = 'dia2vel_lmdz_snow'
+
+      real(kind=dbl), dimension(ndia), intent(out) :: velSpec
+
+      vsnow_lmdz=1. ! 1 m s-1 fall speed of snow in lmdz
+
+      if (verbose >= 2) call report(info,'Start of ', nameOfRoutine)
+      err = success
+
+      !fall speed: small variation of boundaries for non infinite dD_dU
+      velSpec = vsnow_lmdz*(0.5 * diaSpec_SI / maxval(diaSpec_SI)+0.5 * diaSpec_SI / minval(diaSpec_SI))
+      errorstatus = err
+      if (verbose >= 2) call report(info,'End of ', nameOfRoutine)
+
+      return
+  end subroutine dia2vel_lmdz_snow
+
+  subroutine dia2vel_lmdz_rain(errorstatus,nDia,velSpec,diaSpec_SI)            !out
+  !define the rain fall speed for lmdz monodispersed particles
+      use kinds
+      use constants
+      use report_module
+      implicit none
+
+      real :: vrain_lmdz
+      integer, intent(in) :: nDia
+      real(kind=dbl), intent(in), dimension(ndia)::diaSpec_SI
+      integer(kind=long), intent(out) :: errorstatus
+      integer(kind=long) :: err = 0
+      character(len=33) :: nameOfRoutine = 'dia2vel_lmdz_rain'
+
+      real(kind=dbl), dimension(ndia), intent(out) :: velSpec
+
+      vrain_lmdz=4. ! 4 m s-1 fall speed of rain in lmdz
+
+      if (verbose >= 2) call report(info,'Start of ', nameOfRoutine)
+      err = success
+
+      !fall speed: small variation of boundaries for non infinite dD_dU
+      velSpec = vrain_lmdz*(0.5 * diaSpec_SI / maxval(diaSpec_SI)+0.5 * diaSpec_SI / minval(diaSpec_SI))
+      errorstatus = err
+      if (verbose >= 2) call report(info,'End of ', nameOfRoutine)
+
+      return
+  end subroutine dia2vel_lmdz_rain
+
+
+
 
   subroutine dia2vel_heymsfield10_particles_ms_as &
     (errorstatus,&      ! out
@@ -130,7 +191,6 @@ module dia2vel
       Re = delta_0**2/4.d0 * ((1.d0+((4.d0*sqrt(Xstar))/(delta_0**2*sqrt(C_0))))**0.5 - 1 )**2 !eq10
      
       velSpec = eta * Re /(rho_air_SI*diaSpec_SI)
-
       errorstatus = err
       if (verbose >= 2) call report(info,'End of ', nameOfRoutine)
 

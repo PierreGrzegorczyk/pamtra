@@ -1,4 +1,4 @@
-rom __future__ import print_function
+from __future__ import print_function
 
 import pyPamtra
 import shutil
@@ -106,6 +106,9 @@ isel=340
 isel=0#3*24*3
 jsel=-1#6*24*3
 
+jsel=441
+isel=440
+
 pamData["lon"] = lon[isel:jsel,:]
 pamData["lat"] = lat[isel:jsel,:]
 pamData["temp"] = T[isel:jsel,:,:]
@@ -113,6 +116,8 @@ pamData["relhum"] = RH[isel:jsel,:,:]
 pamData["hgt"] = z[isel:jsel,:,:]
 pamData["press"] = p[isel:jsel,:,:]
 pamData["hydro_q"] = q_hydro[isel:jsel,:,:]
+
+
 
 #________hydrometeor input________
 ##___Liq_properties
@@ -139,7 +144,7 @@ snow_fallspeed=1.
 Rho_snow = 1.e3 * 0.178 * ( r_snow * 2 * 1000. )**(-0.922)
 N_snow=(q_hydro[isel:jsel,:,:,id_snow]*Rho_air[isel:jsel,:,:])/(Rho_snow*4/3*np.pi*r_snow**3)
 
-pam.df.addHydrometeor(("snow",-99., -1 , Rho_snow, -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ssrga","heymsfield10_particles",0.0))
+pam.df.addHydrometeor(("snow",-99., -1 , Rho_snow, -99., -99.,-99. , -99., 3 ,1,"mono",-99.0, -99.0, -99.0, -99.0,2*r_snow,-99.0,"ss-rayleigh-gans","heymsfield10_particles",0.0))
 
 ##___Cirrus_properties___
 
@@ -171,10 +176,6 @@ if FULL_SPECTRA==True:
     pam.df.dataFullSpec["as_ratio"][:,:,:,id_liq,:]=1.
     pam.df.dataFullSpec["canting"][:,:,:,id_liq,:]=0.
     pam.df.dataFullSpec["fallvelocity"][:,:,:,id_liq,:]=0.#liq_fallspeed
-    pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_liq,:]=-99.
-    pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_liq,:]=-99.
-    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_liq,:]=-99.
-    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_liq,:]=-99.
 
     ##___RAIN:
     pam.df.dataFullSpec["rho_ds"][:,:,:,id_rain,:]=1000.
@@ -186,35 +187,34 @@ if FULL_SPECTRA==True:
     pam.df.dataFullSpec["as_ratio"][:,:,:,id_rain,:]=1.
     pam.df.dataFullSpec["canting"][:,:,:,id_rain,:]=0.
     pam.df.dataFullSpec["fallvelocity"][:,:,:,id_rain,:]=rain_fallspeed
-    pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_rain,:]=-99.
-    pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_rain,:]=-99.
-    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_rain,:]=-99.
-    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_rain,:]=-99.
 
     ##___SNOW:
     pam.df.dataFullSpec["rho_ds"][:,:,:,id_snow,:]=Rho_snow
     pam.df.dataFullSpec["d_ds"][:,:,:,id_snow,:]=2*r_snow
-    pam.df.dataFullSpec["d_bound_ds"][:,:,:,id_snow,:]=[r_snow,4*r_snow]
+    pam.df.dataFullSpec["d_bound_ds"][:,:,:,id_snow,:]=[r_snow,3*r_snow]
     pam.df.dataFullSpec["n_ds"][:,:,:,id_snow,0]=N_snow
     pam.df.dataFullSpec["mass_ds"][:,:,:,id_snow,0]=q_hydro[isel:jsel,:,:,id_snow]
     pam.df.dataFullSpec["area_ds"][:,:,:,id_snow,:]=np.pi*r_snow**2
     pam.df.dataFullSpec["as_ratio"][:,:,:,id_snow,:]=AR_snow
     pam.df.dataFullSpec["canting"][:,:,:,id_snow,:]=0.
     pam.df.dataFullSpec["fallvelocity"][:,:,:,id_snow,:]=snow_fallspeed
-    pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_snow,:]=-99.
-    pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_snow,:]=-99.
-    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_snow,:]=-99.
-    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_snow,:]=-99.
-    RG_BETA  = 0.9
-    RG_KAPPA = 0.18
-    RG_GAMMA = 1.9
-    RG_ZETA  = 0.25
+#    pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_snow,:]=-99.
+#    pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_snow,:]=-99.
+#    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_snow,:]=-99.
+#    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_snow,:]=-99.
+    RG_BETA  = 0.22
+    RG_KAPPA = 2.52
+    RG_GAMMA = 2.36
+    RG_ZETA  = 0.049
 
     pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_snow,:]  = RG_BETA
     pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_snow,:] = RG_KAPPA
     pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_snow,:] = RG_GAMMA
     pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_snow,:]  = RG_ZETA
-    ##___ICE
+
+
+
+##___ICE
     pam.df.dataFullSpec["rho_ds"][:,:,:,id_ice,:]=Rho_ice
     pam.df.dataFullSpec["d_ds"][:,:,:,id_ice,0]=2*r_ice
     pam.df.dataFullSpec["d_bound_ds"][:,:,:,id_ice,:]=[0,4]#4*np.max(r_cir)]
@@ -224,10 +224,6 @@ if FULL_SPECTRA==True:
     pam.df.dataFullSpec["as_ratio"][:,:,:,id_ice,:]=AR_ice
     pam.df.dataFullSpec["canting"][:,:,:,id_ice,:]=0.
     pam.df.dataFullSpec["fallvelocity"][:,:,:,id_ice,:]=0.#snow_fallspeed
-    pam.df.dataFullSpec["rg_beta_ds"][:,:,:,id_ice,:]=-99.
-    pam.df.dataFullSpec["rg_kappa_ds"][:,:,:,id_ice,:]=-99.
-    pam.df.dataFullSpec["rg_gamma_ds"][:,:,:,id_ice,:]=-99.
-    pam.df.dataFullSpec["rg_zeta_ds"][:,:,:,id_ice,:]=-99.
     plt.imshow(N_ice[:,0,:]/1000,aspect='auto')
     plt.show()
 
@@ -236,7 +232,7 @@ if FULL_SPECTRA==True:
 #pam.nmlSet['tmatrix_db'] = 'file'
 #pam.nmlSet['tmatrix_db_path'] = 'example_db/'
 pam.nmlSet["passive"] = False
-
+pam.nmlSet['radar_allow_negative_dD_dU'] = True
 #__________scattering method____________
 #pam.df.data["scat_name"][:] = "tmatrix"
 #pam.df.data["scat_name"][:] = "ssrga"
@@ -248,7 +244,7 @@ Run_pamtra=True#False
 if Run_pamtra==True:
     print("Start to run")
     pam.runParallelPamtra(35.0,
-                      pp_deltaX=4,    # 2 profiles in X per worker
+                      pp_deltaX=2,    # 2 profiles in X per worker
                       pp_deltaY=4,    # 1 profile in Y per worker
                       pp_deltaF=1,    # 1 frequency per worker
                       pp_local_workers="auto")  # detect CPU cores

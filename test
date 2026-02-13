@@ -1,0 +1,85 @@
+max rh (672, 95, 1, 1)
+extreme 0
+Show Qi
+Show Qs
+Start to run
+submitting job  0 0 1 0 1 0 4
+submitted job:  1
+submitting job  1 0 1 0 1 4 8
+submitted job:  2
+submitting job  2 0 1 0 1 8 12
+submitted job:  3
+submitting job  3 0 1 0 1 12 16
+submitted job:  4
+submitting job  4 0 1 0 1 16 20
+submitted job:  5
+submitting job  5 0 1 0 1 20 24
+submitted job:  6
+submitting job  6 0 1 0 1 24 28
+submitted job:  7
+submitting job  7 0 1 0 1 28 32
+submitted job:  8
+submitting job  8 0 1 0 1 32 36
+submitted job:  9
+submitting job  9 0 1 0 1 36 40
+submitted job:  10
+submitting job  10 0 1 0 1 40 44
+submitted job:  11
+submitting job  11 0 1 0 1 44 48
+submitted job:  12
+submitting job  12 0 1 0 1 48 52
+submitted job:  13
+submitting job  13 0 1 0 1 52 56
+submitted job:  14
+submitting job  14 0 1 0 1 56 60
+submitted job:  15
+submitting job  15 0 1 0 1 60 64
+submitted job:  16
+submitting job  16 0 1 0 1 64 68
+submitted job:  17
+submitting job  17 0 1 0 1 68 72
+submitted job:  18
+submitting job  18 0 1 0 1 72 76
+submitted job:  19
+submitting job  19 0 1 0 1 76 80
+submitted job:  20
+submitting job  20 0 1 0 1 80 84
+submitted job:  21
+submitting job  21 0 1 0 1 84 88
+submitted job:  22
+submitting job  22 0 1 0 1 88 92
+submitted job:  23
+submitting job  23 0 1 0 1 92 96
+submitted job:  24
+submitting job  24 0 1 0 1 96 100
+submitted job:  25
+waiting for all jobs to finish
+got job 1
+got job 2
+got job 3
+got job 4
+got job 5
+got job 6
+got job 7
+got job 8
+got job 9
+got job 10
+got job 11
+got job 12
+got job 13
+got job 14
+got job 15
+got job 16
+got job 17
+got job 18
+got job 19
+got job 20
+got job 21
+got job 22
+got job 23
+got job 24
+got job 25
+pyPamtra runtime: 0.09034276008605957
+SHAPE (1, 100, 95, 1, 1, 1)
+Run end
+PAMTRA output saved as NetCDF file   /home/grzegorc/AWACA/PAMTRA/pamtra/Ouput_golden_case_D17_v5_ssrga.nc
